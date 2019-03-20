@@ -1,0 +1,17 @@
+opam-version: "2.0"
+name: "plancton"
+version: "~dev"
+synopsis: "Planification de plongée"
+maintainer: "Thibault Suzanne <thi.suzanne@gmail.com>"
+authors: "Thibault Suzanne <thi.suzanne@gmail.com>"
+homepage: "https://github.com/thizanne/plancton"
+bug-reports: "https://github.com/thizanne/plancton/issues"
+depends: [
+  "dune" {build}
+]
+build: ["dune" "build" "-p" name "-j" jobs]
+install: ["dune" "install"]
+dev-repo: "git+https://github.com/thizanne/plancton"
+url {
+  src: "git+file:///home/thibault/plancton#master"
+}
