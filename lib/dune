@@ -1,0 +1,8 @@
+(library
+ (name plancton)
+ (libraries
+  core_kernel
+  )
+ (flags
+  (:standard -open Core_kernel))
+ )
