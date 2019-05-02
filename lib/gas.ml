@@ -6,6 +6,14 @@ type t = {
   n2 : float;
 }
 
+let ppo2_deco = 1.6
+let ppo2_bottom = 1.4
+
+let fraction element gas = match element with
+  | `O2 -> gas.o2
+  | `N2 -> gas.n2
+  | `He -> gas.he
+
 let from_percent percentage =
   percentage / 100.
 
@@ -34,6 +42,9 @@ let air =
 let oxy =
   nx 100
 
+let is_nitrox { he; _ } =
+  he = 0.
+
 let heliair ~o2 =
   let o2 = from_percent o2 in
   let n2 = (o2 / air.o2) * air.n2 in
@@ -47,3 +58,49 @@ let end_ gas depth =
   (* Oxygen is conservatively assumed to be as narcotic as nitrogen *)
   Physics.pressure_to_depth @@
   (1. - gas.he) * Physics.depth_to_pressure depth
+
+let ead gas depth =
+  assert (is_nitrox gas);
+  Physics.pressure_to_depth @@
+  gas.n2 * Physics.depth_to_pressure depth / air.n2
+
+let frac element gas =
+  match element with
+  | `O2 -> gas.o2
+  | `He -> gas.he
+  | `N2 -> gas.n2
+
+let pp element gas depth =
+  frac element gas * Physics.depth_to_pressure depth
+
+let is_breathable ~ppo2_max ~depth gas =
+  pp `O2 gas depth <= ppo2_max
+
+module Tank = struct
+  type nonrec t = {
+    gas : t;
+    pressure : Physics.pressure;
+    volume : Physics.volume;
+  }
+
+  let find_best ~ppo2_max ~depth available_tanks =
+    let compare_tank_gasses { gas = gas1; _ } { gas = gas2; _ } =
+      (* Negative => tank1 is better. We use lists to
+         lexicographically compare gasses: more oxygen is better, then
+         more helium is better. *)
+      Int.neg @@
+      List.compare Float.robustly_compare [gas1.o2; gas1.he] [gas2.o2; gas2.he]
+    in
+    List.find_exn
+      ~f:(fun tank -> is_breathable ~ppo2_max ~depth tank.gas)
+      (List.sort ~compare:compare_tank_gasses available_tanks)
+
+  let find_best_deco =
+    find_best ~ppo2_max:ppo2_deco
+
+  let find_best_bottom =
+    find_best ~ppo2_max:ppo2_bottom
+
+  let al80 gas =
+    { gas; pressure = 207.; volume = 11.1 }
+end
