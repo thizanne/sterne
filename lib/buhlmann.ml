@@ -92,6 +92,8 @@ module Gf = struct
        given high and low gf and the depth where gf_low is
        applicable. Gradient factors are expected in the [[0. - 1.]]
        range. *)
+    (* Check that 0 < gf < 10 to prevent (80, 80) mistakes and still
+       allow 110% gf *)
     Staged.stage @@ fun depth ->
     (depth / low_depth) * (low - high) + high
 
@@ -138,7 +140,7 @@ let first_stop (gf_low, gf_high) depth saturation =
       then depth, saturation, gf
       else
         let gf = Staged.unstage @@ Gf.gf_fun (gf_low, gf_high) depth in
-        aux true gf next_3m next_saturation
+        aux true gf depth saturation
   in aux false (const gf_low) depth saturation
 
 let rec stop_time gf gas stop_depth next_stop_depth saturation =
