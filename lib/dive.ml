@@ -32,15 +32,15 @@ let descent_segment gas initial final =
   let duration = round ((final - initial) / ascent_speed) in
   { gas; initial; final; duration }
 
-let horizontal_segment gas ~depth ~duration =
+let flat_segment gas ~depth ~duration =
   { gas; initial = depth; final = depth; duration }
 
 let minute_stop_segment gas depth =
-  horizontal_segment gas ~depth ~duration:1.
+  flat_segment gas ~depth ~duration:1.
 
 let square_profile gas ~depth ~time =
   let descent =
     descent_segment gas 0. depth in
   let bottom =
-    horizontal_segment gas ~depth ~duration:(time - descent.duration) in
+    flat_segment gas ~depth ~duration:(time - descent.duration) in
   [descent; bottom]

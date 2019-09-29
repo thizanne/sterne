@@ -179,7 +179,7 @@ let deco (gf_low, gf_high) tanks depth gas saturation =
       let waiting_time, end_saturation =
         stop_time gf gas stop_depth next_stop_depth saturation in
       let stop_segment =
-        Dive.horizontal_segment gas ~depth:stop_depth ~duration:waiting_time in
+        Dive.flat_segment gas ~depth:stop_depth ~duration:waiting_time in
       let ascent_segment =
         Dive.ascent_segment gas stop_depth next_stop_depth in
       let next_stop_saturation =
