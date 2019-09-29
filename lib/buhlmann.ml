@@ -100,7 +100,9 @@ module Gf = struct
   let m_value gf depth compartment =
     (* Returns the modified M-value according to gradient factor [gf]
        for the given [depth] and [compartment] arguments. *)
-    gf depth * compartment.m_value (Physics.depth_to_pressure depth)
+    let ambient_pressure = Physics.depth_to_pressure depth in
+    let standard_mvalue = compartment.m_value ambient_pressure in
+    ambient_pressure + gf depth * (standard_mvalue - ambient_pressure)
 end
 
 let is_admissible_depth gf depth saturation =
