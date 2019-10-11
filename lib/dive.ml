@@ -28,8 +28,8 @@ let ascent_segment gas initial final =
 
 let descent_segment gas initial final =
   (* Positive descent speed *)
-  let ascent_speed = 20. in
-  let duration = round ((final - initial) / ascent_speed) in
+  let descent_speed = 20. in
+  let duration = (final - initial) / descent_speed in
   { gas; initial; final; duration }
 
 let flat_segment gas ~depth ~duration =
