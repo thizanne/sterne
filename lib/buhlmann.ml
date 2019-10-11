@@ -111,7 +111,7 @@ let is_admissible_depth gf depth saturation =
     n2_compartments
     saturation
 
-let first_stop (gf_low, gf_high) depth saturation =
+let first_stop (gf_low, gf_high) gas depth saturation =
   (* Given a depth and a saturation, returns the depth of the first
      required deco stop, along with the saturation when reaching it
      and the corresponding gradient factor function. This stop is
@@ -133,7 +133,7 @@ let first_stop (gf_low, gf_high) depth saturation =
       let next_3m =
         Physics.next_3m_depth depth in
       let ascent_segment =
-        Dive.ascent_segment Gas.air depth next_3m in
+        Dive.ascent_segment gas depth next_3m in
       let next_saturation =
         segment_saturation `N2 saturation ascent_segment in
       if is_admissible_depth gf next_3m next_saturation
@@ -167,7 +167,7 @@ let deco (gf_low, gf_high) tanks depth gas saturation =
      saturation and breathing gas, and available tanks, as a list of
      segments whose last element has 0 as a final depth. *)
   let first_stop_depth, first_stop_saturation, gf =
-    first_stop (gf_low, gf_high) depth saturation in
+    first_stop (gf_low, gf_high) gas depth saturation in
   let rec deco_stops stop_depth saturation =
     if stop_depth = 0.
     then []
