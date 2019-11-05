@@ -6,23 +6,30 @@ open Float.O
 
 type tension = Physics.pressure
 
-type compartment = {
+type compartment_values = {
   half_life : Physics.time;
-  m_value : Physics.pressure -> tension;
+  a : tension (* origin m-value *);
+  b : float (* inverse slope *);
 }
 
-type saturation = tension list
+type compartment = {
+  n2 : compartment_values;
+  he : compartment_values;
+}
+
+type saturation = {
+  t_n2 : tension;
+  t_he : tension;
+}
+
+type saturation_state = saturation list
 
 let alveolar_pressure element mix ambient_pressure =
   let water_vapour_pressure = 0.0627 (* 47 mmHg *) in
   Gas.fraction element mix * (ambient_pressure - water_vapour_pressure)
 
-let m_value_from_coeff ~a ~b p =
-  (* Maximal admissible tension *)
-  (p /. b) +. a
-
-let n2_compartments =
-  let table = [
+let compartments =
+  let n2_values_table = [
     (* 1 *) (* 4.0, 1.2599, 0.5240; *)
     (* 1b *) 5.0, 1.1696, 0.5578;
     (* 2 *) 8.0, 1.0000, 0.6514;
@@ -41,74 +48,123 @@ let n2_compartments =
     (* 15 *) 498., 0.2523, 0.9602;
     (* 16 *) 635., 0.2327, 0.9653;
   ] in
-  List.map table ~f:(
-    fun (half_life, a, b) -> {
-        half_life;
-        m_value = m_value_from_coeff ~a ~b
-      }
-  )
+  let he_values_table = [
+    (* 1 *) (* 1.51, 1.7424, 0.4245; *)
+    (* 1b *) 1.88, 1.6189, 0.4770;
+    (* 2 *) 3.02, 1.3830, 0.5747;
+    (* 3 *) 4.72, 1.1919, 0.6527;
+    (* 4 *) 6.99, 1.0458, 0.7223;
+    (* 5 *) 10.21, 0.9220, 0.7582;
+    (* 6 *) 14.48, 0.8205, 0.7957;
+    (* 7 *) 20.53, 0.7305, 0.8279;
+    (* 8 *) 29.11, 0.6502, 0.8553;
+    (* 9 *) 41.20, 0.5950, 0.8757;
+    (* 10 *) 55.19, 0.5545, 0.8903;
+    (* 11 *) 70.69, 0.5333, 0.8997;
+    (* 12 *) 90.34, 0.5189, 0.9073;
+    (* 13 *) 115.29, 0.5181, 0.9122;
+    (* 14 *) 147.42, 0.5176, 0.9171;
+    (* 15 *) 188.24, 0.5172, 0.9217;
+    (* 16 *) 240.03, 0.5119, 0.9267;
+  ] in
+  let build_values (half_life, a, b) =
+    { half_life; a; b } in
+  List.map2_exn
+    ~f:(fun n2_values he_values -> {
+          n2 = build_values n2_values ;
+          he = build_values he_values
+        })
+    n2_values_table
+    he_values_table
 
 (**************************)
 (* Saturation computation *)
 (**************************)
 
-let full_saturation ambient_pressure =
+let full_saturation gas ambient_pressure =
+  let t_n2 = alveolar_pressure `N2 gas ambient_pressure in
+  let t_he = alveolar_pressure `He gas ambient_pressure in
   List.map
-    ~f:(const @@ alveolar_pressure `N2 Gas.air ambient_pressure)
-    n2_compartments
+    ~f:(const { t_he; t_n2 })
+    compartments
 
-let segment_compartment_loading element (segment : Dive.segment) p0 compartment =
+let segment_element_loading element (segment : Dive.segment) p0 { half_life; _ } =
   (* Schreiner equation *)
+  (* p0 = initial inert gas pressure in the compartment *)
   let initial_pressure = Physics.depth_to_pressure segment.initial in
   let final_pressure = Physics.depth_to_pressure segment.final in
   let t = segment.duration in
   let pressure_variation_rate = (final_pressure - initial_pressure) / t in
   let r = pressure_variation_rate * Gas.fraction element segment.gas in
   let pi_0 = alveolar_pressure element segment.gas initial_pressure in
-  let k = log 2. / compartment.half_life in
+  let k = log 2. / half_life in
   pi_0 + r * (t - 1. / k) - (pi_0 - p0 - (r / k)) * exp (- k * t)
 
-let segment_saturation element saturation segment =
-  List.map2_exn
-    ~f:(segment_compartment_loading element segment)
-    saturation
-    n2_compartments
+let segment_compartment_loading segment { t_n2; t_he } { n2; he } =
+  {
+    t_n2 = segment_element_loading `N2 segment t_n2 n2;
+    t_he = segment_element_loading `He segment t_he he;
+  }
 
-let profile_saturation element profile =
+let segment_saturation saturation segment =
+  List.map2_exn
+    ~f:(segment_compartment_loading segment)
+    saturation
+    compartments
+
+let profile_saturation profile =
   List.fold_left
-    ~f:(segment_saturation element)
-    ~init:(full_saturation Physics.atmospheric_pressure)
+    ~f:segment_saturation
+    ~init:(full_saturation Gas.air Physics.atmospheric_pressure)
     profile
 
 (***************************)
 (* Decompression procedure *)
 (***************************)
 
-module Gf = struct
-  type t = float
-
-  let gf_fun (low, high) low_depth =
-    (* Returns a staged computation of gradient factors from depth,
-       given high and low gf and the depth where gf_low is
-       applicable. Gradient factors are expected in the [[0. - 1.]]
-       range. *)
-    (* Check that 0 < gf < 10 to prevent (80, 80) mistakes and still
-       allow 110% gf *)
+let make_gf_fun (low, high) low_depth =
+  (* Returns a staged computation of gradient factors from depth,
+     given high and low gf and the depth where gf_low is
+     applicable. Gradient factors are expected in the [[0. - 1.]]
+     range. *)
+  (* Check that 0 < gf < 10 to prevent (80, 80) mistakes and still
+     allow 110% gf *)
     Staged.stage @@ fun depth ->
     (depth / low_depth) * (low - high) + high
 
-  let m_value gf depth compartment =
-    (* Returns the modified M-value according to gradient factor [gf]
-       for the given [depth] and [compartment] arguments. *)
-    let ambient_pressure = Physics.depth_to_pressure depth in
-    let standard_mvalue = compartment.m_value ambient_pressure in
-    ambient_pressure + gf depth * (standard_mvalue - ambient_pressure)
-end
+let get_m_value (a, b) ambient_pressure =
+  (* Maximal admissible tension from Bühlmann coefficients *)
+  (ambient_pressure / b) + a
+
+let mean_coeff (coeff_n2, t_n2) (coeff_he, t_he) =
+  (* Computes the mean of a coefficient, according to its pure n2 and
+     pure h2 versions, weighted by the corresponding gas tension *)
+  (coeff_n2 * t_n2 + coeff_he * t_he) / (t_n2 + t_he)
+
+let is_admissible_depth_for_compartment gf depth compartment saturation =
+  (* Bühlmann coefficients computed as weighted means *)
+  let a =
+    mean_coeff
+      (compartment.n2.a, saturation.t_n2)
+      (compartment.he.a, saturation.t_he) in
+  let b =
+    mean_coeff
+      (compartment.n2.b, saturation.t_n2)
+      (compartment.he.b, saturation.t_he) in
+  (* Maximum admissible total tension *)
+  let ambient_pressure =
+    Physics.depth_to_pressure depth in
+  let m_value =
+    get_m_value (a, b) ambient_pressure in
+  let m_value_with_gf =
+    ambient_pressure + gf depth * (m_value - ambient_pressure) in
+  (* Total saturation must be lower than m-value *)
+  saturation.t_n2 + saturation.t_he <= m_value_with_gf
 
 let is_admissible_depth gf depth saturation =
   List.for_all2_exn
-    ~f:(fun c tension -> Gf.m_value gf depth c >= tension)
-    n2_compartments
+    ~f:(is_admissible_depth_for_compartment gf depth)
+    compartments
     saturation
 
 let first_stop (gf_low, gf_high) gas depth saturation =
@@ -135,13 +191,13 @@ let first_stop (gf_low, gf_high) gas depth saturation =
       let ascent_segment =
         Dive.ascent_segment gas depth next_3m in
       let next_saturation =
-        segment_saturation `N2 saturation ascent_segment in
+        segment_saturation saturation ascent_segment in
       if is_admissible_depth gf next_3m next_saturation
       then aux low_depth_found gf next_3m next_saturation
       else if low_depth_found
       then depth, saturation, gf
       else
-        let gf = Staged.unstage @@ Gf.gf_fun (gf_low, gf_high) depth in
+        let gf = Staged.unstage @@ make_gf_fun (gf_low, gf_high) depth in
         aux true gf depth saturation
   in aux false (const gf_low) depth saturation
 
@@ -157,7 +213,7 @@ let rec stop_time gf gas stop_depth next_stop_depth saturation =
     let minute_segment =
       Dive.minute_stop_segment gas stop_depth in
     let minute_saturation =
-      segment_saturation `N2 saturation minute_segment in
+      segment_saturation saturation minute_segment in
     let remaining_time, saturation =
       stop_time gf gas stop_depth next_stop_depth minute_saturation in
     minute_segment.duration + remaining_time, saturation
@@ -183,7 +239,7 @@ let deco (gf_low, gf_high) tanks depth gas saturation =
       let ascent_segment =
         Dive.ascent_segment gas stop_depth next_stop_depth in
       let next_stop_saturation =
-        segment_saturation `N2 end_saturation ascent_segment in
+        segment_saturation end_saturation ascent_segment in
       stop_segment ::
       ascent_segment ::
       deco_stops next_stop_depth next_stop_saturation
@@ -197,4 +253,4 @@ let deco_procedure (gf_low, gf_high) { Dive.tanks; profile } =
     tanks
     (Dive.final_depth profile)
     (Dive.final_gas profile)
-    (profile_saturation `N2 profile)
+    (profile_saturation profile)
