@@ -6,6 +6,16 @@ type t = {
   n2 : float;
 }
 
+module O = struct
+
+  let ( = ) gas gas' =
+    let open Int.O in
+    Float.robustly_compare gas.o2 gas'.o2 = 0 &&
+    Float.robustly_compare gas.n2 gas'.n2 = 0 &&
+    Float.robustly_compare gas.he gas'.he = 0
+
+end
+
 let ppo2_deco = 1.6
 let ppo2_bottom = 1.4
 
@@ -45,6 +55,12 @@ let oxy =
 let is_nitrox { he; _ } =
   he = 0.
 
+let is_air gas =
+  O.(gas = air)
+
+let is_oxy gas =
+  O.(gas = oxy)
+
 let heliair ~o2 =
   let o2 = from_percent o2 in
   let n2 = (o2 / air.o2) * air.n2 in
@@ -70,11 +86,21 @@ let frac element gas =
   | `He -> gas.he
   | `N2 -> gas.n2
 
-let pp element gas depth =
+let partial_pressure element gas depth =
   frac element gas * Physics.depth_to_pressure depth
 
 let is_breathable ~ppo2_max ~depth gas =
-  pp `O2 gas depth <= ppo2_max
+  partial_pressure `O2 gas depth <= ppo2_max
+
+let pp ppf gas =
+  let open Fmt in
+  if is_oxy gas
+  then string ppf "Oxy"
+  else if is_air gas
+  then string ppf "Air"
+  else if is_nitrox gas
+  then pf ppf "Nx %.0f" (to_percent gas.o2)
+  else pf ppf "Tx %.0f/%.0f" (to_percent gas.o2) (to_percent gas.he)
 
 module Tank = struct
   type nonrec t = {

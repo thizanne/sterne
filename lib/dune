@@ -2,6 +2,8 @@
  (name plancton)
  (libraries
   core_kernel
+  fmt
+  printbox.unicode
   )
  (flags
   (:standard -open Core_kernel))
