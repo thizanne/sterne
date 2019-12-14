@@ -7,7 +7,7 @@ open Float.O
 type tension = Physics.pressure
 
 type compartment_values = {
-  half_life : Physics.time;
+  half_life : Physics.time_span;
   a : tension (* origin m-value *);
   b : float (* inverse slope *);
 }
@@ -68,7 +68,7 @@ let compartments =
     (* 16 *) 240.03, 0.5119, 0.9267;
   ] in
   let build_values (half_life, a, b) =
-    { half_life; a; b } in
+    { half_life = Time.Span.of_min half_life; a; b } in
   List.map2_exn
     ~f:(fun n2_values he_values -> {
           n2 = build_values n2_values ;
@@ -93,7 +93,8 @@ let segment_element_loading element (segment : Dive.segment) p0 { half_life; _ }
   (* p0 = initial inert gas pressure in the compartment *)
   let initial_pressure = Physics.depth_to_pressure segment.initial in
   let final_pressure = Physics.depth_to_pressure segment.final in
-  let t = segment.duration in
+  let t = Time.Span.to_min segment.duration in
+  let half_life = Time.Span.to_min half_life in
   let pressure_variation_rate = (final_pressure - initial_pressure) / t in
   let r = pressure_variation_rate * Gas.fraction element segment.gas in
   let pi_0 = alveolar_pressure element segment.gas initial_pressure in
@@ -208,7 +209,7 @@ let rec stop_time gf gas stop_depth next_stop_depth saturation =
      acceptable at the next stop. Note: the ascent segment to the next
      stop is not considered to compute this saturation. *)
   if is_admissible_depth gf next_stop_depth saturation
-  then 0., saturation
+  then Time.Span.zero, saturation
   else
     let minute_segment =
       Dive.minute_stop_segment gas stop_depth in
@@ -216,7 +217,7 @@ let rec stop_time gf gas stop_depth next_stop_depth saturation =
       segment_saturation saturation minute_segment in
     let remaining_time, saturation =
       stop_time gf gas stop_depth next_stop_depth minute_saturation in
-    minute_segment.duration + remaining_time, saturation
+    Time.Span.(minute_segment.duration + remaining_time), saturation
 
 let deco (gf_low, gf_high) tanks depth gas saturation =
   (* Returns the full deco profile from given current depth,

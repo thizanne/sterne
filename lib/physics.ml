@@ -4,7 +4,7 @@ type depth = float
 
 type pressure = float
 
-type time = float
+type time_span = Time.Span.t
 
 type volume = float
 
@@ -28,3 +28,21 @@ let next_3m_depth depth =
   let stop = float Int.(idepth - idepth mod 3) in
   (* If depth = 30., should return 27. *)
   if stop = depth then stop - 3. else stop
+
+let pp_time_span ppf time_span =
+  (* Pretty prints a time span. Round to the second for spans lower
+     than a minute, to the minute otherwise. Minutes are printed as
+     "min" and not "m". *)
+  Fmt.string ppf @@
+    if Time.Span.(time_span <. minute)
+    then
+      Time.Span.to_string_hum
+        time_span
+        ~decimals:0
+        ~unit_of_time:Unit_of_time.Second
+    else
+      Time.Span.to_string_hum
+        time_span
+        ~decimals:0
+        ~unit_of_time:Unit_of_time.Minute ^
+      "in" (* 3min rather than 3m *)
