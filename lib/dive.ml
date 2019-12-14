@@ -67,7 +67,7 @@ let segment_box ?(must_pp_gas=true) start_time segment =
     else "-" in
   [|
     text direction;
-    float_ segment.final;
+    asprintf "%gm" segment.final;
     asprintf "%a" Physics.pp_time_span segment.duration;
     asprintf "%a" Physics.pp_time_span Time.Span.(start_time + segment.duration);
     if must_pp_gas
@@ -99,5 +99,5 @@ let pp_profile ppf profile =
   let first_line =
     Array.map
       ~f:PrintBox.(text_with_style (Style.bold))
-      [|""; "depth"; "duration"; "runtime"; "gas"|] in
+      [|""; "Depth"; "Duration"; "Runtime"; "Gas"|] in
   PrintBox_text.pp ppf (profile_box ~first_line profile)
