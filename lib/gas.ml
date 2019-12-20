@@ -115,7 +115,7 @@ module Tank = struct
          lexicographically compare gasses: more oxygen is better, then
          more helium is better. *)
       Int.neg @@
-      List.compare Float.robustly_compare [gas1.o2; gas1.he] [gas2.o2; gas2.he]
+      List.compare Float.compare [gas1.o2; gas1.he] [gas2.o2; gas2.he]
     in
     List.find_exn
       ~f:(fun tank -> is_breathable ~ppo2_max ~depth tank.gas)
