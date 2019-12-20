@@ -133,3 +133,29 @@ module Tank = struct
   let al80 gas =
     { gas; pressure = 207.; volume = 11.1; id = Id.create (); }
 end
+
+module Arg = struct
+
+  let parse input =
+    let re = Tyre.(
+        str "air" <|>
+        str "oxy" <|>
+        pos_int <|>
+        (pos_int <&> char '/' *> pos_int)
+      ) in
+    match Tyre.exec (Tyre.compile re) input with
+    | Ok `Left `Left `Left () -> Some air
+    | Ok `Left `Left `Right () -> Some oxy
+    | Ok `Left `Right o2 -> Some (nx o2)
+    | Ok `Right (o2, he) -> Some (tx o2 he)
+    | _ -> None
+
+  let parser =
+    Cmdliner.Arg.parser_of_kind_of_string
+      ~kind:"a gas (eg. air, oxy, 32 or 10/70)"
+      parse
+
+  let conv =
+    Cmdliner.Arg.conv ~docv:"GAS" (parser, pp)
+
+end
