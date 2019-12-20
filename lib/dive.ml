@@ -79,9 +79,9 @@ let profile_box ?first_line profile =
   match profile with
   | [] -> assert false
   | initial_segment :: segments ->
-    let _acc, tail_box_lines =
+    let tail_box_lines =
       (* All segment boxes but the first one *)
-      List.fold_map
+      List.folding_map
         ~f:(fun (run_time, previous_gas) segment ->
             (Time.Span.(run_time + segment.duration), segment.gas),
             segment_box
