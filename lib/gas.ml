@@ -103,10 +103,13 @@ let pp ppf gas =
   else pf ppf "Tx %.0f/%.0f" (to_percent gas.o2) (to_percent gas.he)
 
 module Tank = struct
+  module Id = Unique_id.Int63 ()
+
   type nonrec t = {
     gas : t;
     pressure : Physics.pressure;
     volume : Physics.volume;
+    id : Id.t;
   }
 
   let find_best ~ppo2_max ~depth available_tanks =
@@ -128,5 +131,5 @@ module Tank = struct
     find_best ~ppo2_max:ppo2_bottom
 
   let al80 gas =
-    { gas; pressure = 207.; volume = 11.1 }
+    { gas; pressure = 207.; volume = 11.1; id = Id.create (); }
 end
