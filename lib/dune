@@ -1,9 +1,11 @@
 (library
- (name plancton)
+ (name sterne)
  (libraries
   core_kernel
   fmt
   printbox.unicode
+  cmdliner
+  tyre
   )
  (flags
   (:standard -open Core_kernel))
