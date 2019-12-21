@@ -1,0 +1,11 @@
+(executable
+ (name main)
+ (libraries
+  core_kernel
+  cmdliner
+  fmt
+  sterne
+  )
+ (flags
+  (:standard -open Core_kernel))
+ )

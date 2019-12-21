@@ -142,7 +142,8 @@ module Arg = struct
         str "oxy" <|>
         pos_int <|>
         (pos_int <&> char '/' *> pos_int)
-      ) in
+      ) |> Tyre.whole_string
+    in
     match Tyre.exec (Tyre.compile re) input with
     | Ok `Left `Left `Left () -> Some air
     | Ok `Left `Left `Right () -> Some oxy
