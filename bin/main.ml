@@ -14,6 +14,9 @@ let gases =
   let doc = "Available gases. First one will be used as bottom gas." in
   Arg.(value & opt (list Gas.Arg.conv) [Gas.air] & info ["g"; "gases"] ~doc ~docv:"GASES")
 
+let tanks =
+  Term.(pure (List.map ~f:Gas.Tank.al80) $ gases)
+
 let gf =
   let doc = "Bühlmann gradient factors." in
   Arg.(value & opt (pair ~sep:'/' int int) (80, 80) & info ["gf"] ~doc ~docv:"GF")
@@ -22,8 +25,9 @@ let gf =
   let of_percent x = float_of_int x /. 100. in
   Term.(pure (fun (low, high) -> of_percent low, of_percent high) $ gf)
 
-let tanks =
-  Term.(pure (List.map ~f:Gas.Tank.al80) $ gases)
+let display_transitions =
+  let doc = "Display deco transitions." in
+  Arg.(value & flag & info ["display-transitions"] ~doc)
 
 let depth =
   let doc = "Depth." in
@@ -36,13 +40,13 @@ let time =
 let time =
   Term.(pure Time.Span.of_min $ time)
 
-let main tanks gf depth time =
+let main tanks gf display_transitions depth time =
   let profile = Dive.square_profile (List.hd_exn tanks).Gas.Tank.gas ~depth ~time in
   let dive = Dive.{ tanks; profile } in
   let deco = Buhlmann.deco_procedure gf dive in
   let full_profile = Dive.append_profile profile deco in
-  Fmt.pr "@[%a@]@." Dive.pp_profile full_profile
+  Fmt.pr "@[%a@]@." (Dive.pp_profile ~display_transitions) full_profile
 
 let () =
   Term.exit @@
-  Term.eval (Term.(pure main $ tanks $ gf $ depth $ time), info)
+  Term.eval (Term.(pure main $ tanks $ gf $ display_transitions $ depth $ time), info)

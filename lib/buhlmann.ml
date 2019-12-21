@@ -190,7 +190,7 @@ let first_stop (gf_low, gf_high) gas depth saturation =
       let next_3m =
         Physics.next_3m_depth depth in
       let ascent_segment =
-        Dive.ascent_segment gas depth next_3m in
+        Dive.ascent_deco_segment gas depth next_3m in
       let next_saturation =
         segment_saturation saturation ascent_segment in
       if is_admissible_depth gf next_3m next_saturation
@@ -236,16 +236,16 @@ let deco (gf_low, gf_high) tanks depth gas saturation =
       let waiting_time, end_saturation =
         stop_time gf gas stop_depth next_stop_depth saturation in
       let stop_segment =
-        Dive.flat_segment gas ~depth:stop_depth ~duration:waiting_time in
+        Dive.flat_deco_segment gas ~depth:stop_depth ~duration:waiting_time in
       let ascent_segment =
-        Dive.ascent_segment gas stop_depth next_stop_depth in
+        Dive.ascent_deco_segment gas stop_depth next_stop_depth in
       let next_stop_saturation =
         segment_saturation end_saturation ascent_segment in
       stop_segment ::
       ascent_segment ::
       deco_stops next_stop_depth next_stop_saturation
   in
-  Dive.ascent_segment gas depth first_stop_depth ::
+  Dive.ascent_deco_segment gas depth first_stop_depth ::
   deco_stops first_stop_depth first_stop_saturation
 
 let deco_procedure (gf_low, gf_high) { Dive.tanks; profile } =
