@@ -40,6 +40,9 @@ let trimix ~o2 ~he =
 let tx o2 he =
   trimix ~o2:(float o2) ~he:(float he)
 
+let tx' (o2, he) =
+  tx o2 he
+
 let nitrox ~o2 =
   trimix ~he:0. ~o2
 
@@ -137,19 +140,22 @@ end
 module Arg = struct
 
   let parse input =
-    let re = Tyre.(
-        str "air" <|>
-        str "oxy" <|>
-        pos_int <|>
-        (pos_int <&> char '/' *> pos_int)
-      ) |> Tyre.whole_string
+    let routes = Tyre.[
+        str "air" --> const air;
+        str "oxy" --> const oxy;
+        pos_int --> nx;
+        ((pos_int <* char '/') <&> pos_int) --> tx';
+      ] in
+    let routes =
+      (* Regexps must match the whole string: "air32" isn't a gas, and
+         this also ensures that "18/40" is not parsed as nitrox 18 *)
+      List.map
+        ~f:Tyre.(fun (Route (re, fn)) -> Route (whole_string re, fn))
+        routes
     in
-    match Tyre.exec (Tyre.compile re) input with
-    | Ok `Left `Left `Left () -> Some air
-    | Ok `Left `Left `Right () -> Some oxy
-    | Ok `Left `Right o2 -> Some (nx o2)
-    | Ok `Right (o2, he) -> Some (tx o2 he)
-    | _ -> None
+    match Tyre.(exec @@ route routes) input with
+    | Ok gas -> Some gas
+    | Error _ -> None
 
   let parser =
     Cmdliner.Arg.parser_of_kind_of_string
