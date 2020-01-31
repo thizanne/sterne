@@ -8,6 +8,13 @@ homepage: "https://github.com/thizanne/sterne"
 bug-reports: "https://github.com/thizanne/sterne/issues"
 depends: [
   "dune" {build}
+  "cmdliner"
+  "tyre"
+  "core_kernel"
+  "fmt"
+  "printbox"
+  "uutf"
+  "uucp"
 ]
 build: ["dune" "build" "-p" name "-j" jobs]
 install: ["dune" "install"]
