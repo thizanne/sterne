@@ -1,5 +1,7 @@
 (executable
  (name main)
+ (public_name sterne)
+ (package sterne-bin)
  (libraries
   core_kernel
   cmdliner
