@@ -29,3 +29,17 @@
   (fmt (>= ~~))
   (sterne (>= ~~))
   ))
+
+(package
+ (name sterne-app)
+ (synopsis "A dive planning mobile application")
+ (depends
+  (cordova (>= ~~))
+  (cordova-plugin-dialogs (>= ~~))
+  (core_kernel (>= ~~))
+  (gen_js_api (>= ~~))
+  (incr_dom (>= ~~))
+  (js_of_ocaml (>= ~~))
+  (ppx_jane (>= ~~))
+  (sterne (>= ~~))
+  ))

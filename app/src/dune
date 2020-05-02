@@ -1,0 +1,21 @@
+(executable
+ (name main)
+ (modes byte js)
+ (libraries
+  gen_js_api ;; Must come before cordova deps
+  cordova
+  cordova-plugin-dialogs
+  core_kernel
+  sterne
+  incr_dom
+  js_of_ocaml
+  ppx_jane
+  )
+ (preprocess (pps js_of_ocaml-ppx ppx_jane))
+ (flags (:standard -open Core_kernel))
+ (promote (into build) (until-clean))
+ )
+
+(alias
+ (name default)
+ (deps main.bc.js))

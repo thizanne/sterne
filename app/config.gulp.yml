@@ -1,0 +1,23 @@
+# Gulp will reference these paths when it copies files
+PATHS:
+  # Path to dist folder
+  dist: "www/dist"
+  # Paths to font files for icons
+  fonts:
+    - "node_modules/@fortawesome/fontawesome-free/webfonts/*"
+    - "node_modules/material-icons/iconfont/*"
+  # # Paths to Sass libraries, which can then be loaded with @use
+  sass_libs:
+    - "node_modules"
+    - "node_modules/@fortawesome/fontawesome-free/scss"
+    - "node_modules/material-icons/iconfont"
+    - "node_modules/material-components-web"
+  # # Paths to Sass entry points to be generated into css files
+  sass_entries:
+    - "www/scss/app.scss"
+  # # Paths to JavaScript entry points for webpack to bundle modules
+  entries:
+    - "www/js/bundle.js"
+  # # Paths to compiled javascript files from OCaml sources
+  mlentries:
+    - "src/build/main.bc.js"

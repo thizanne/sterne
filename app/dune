@@ -1,0 +1,4 @@
+(alias
+ (name default)
+ (deps (alias src/default))
+ )

@@ -1,0 +1,20 @@
+@charset 'utf-8';
+
+// Materialize
+// @use 'materialize';
+
+// Material components
+@use 'material-components-web';
+
+// FontAwesome
+@use 'fontawesome';
+
+@use 'solid.scss' with (
+    $fa-font-path: '../fonts', // Without trailing slash
+);
+
+// Material icons
+
+@use 'material-icons.scss' with (
+    $material-icons-font-path: '../fonts/', // With trailing slash
+);
