@@ -1,6 +1,6 @@
 (executable
  (name main)
- (modes byte js)
+ (modes js)
  (libraries
   gen_js_api ;; Must come before cordova deps
   cordova
