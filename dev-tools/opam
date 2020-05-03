@@ -1,0 +1,21 @@
+opam-version: "2.0"
+name: "sterne-dev"
+version: "~dev"
+synopsis: "Outils de développement pour Sterne"
+maintainer: "Thibault Suzanne <thi.suzanne@gmail.com>"
+authors: "Thibault Suzanne <thi.suzanne@gmail.com>"
+homepage: "https://github.com/thizanne/sterne"
+bug-reports: "https://github.com/thizanne/sterne/issues"
+depends: [
+  "odig"
+  "utop"
+  "merlin"
+  "ocp-indent"
+  "tuareg"
+]
+build: []
+install: []
+dev-repo: "git+https://github.com/thizanne/sterne"
+url {
+  src: "git+file:///home/thibault/sterne#master"
+}
