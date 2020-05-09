@@ -1,18 +1,16 @@
 open Float.O
 
-type fraction = float
+module Quantity = struct
+  type fraction = float [@@deriving sexp]
+  type percentage = float [@@deriving sexp]
+  type percentage_int = int [@@deriving sexp]
+  type depth = float [@@deriving sexp]
+  type pressure = float [@@deriving sexp]
+  type time_span = Time.Span.t [@@deriving sexp]
+  type volume = float [@@deriving sexp]
+end
 
-type percentage = float
-
-type percentage_int = int
-
-type depth = float
-
-type pressure = float
-
-type time_span = Time.Span.t
-
-type volume = float
+include Quantity
 
 let atmospheric_pressure = 1. (* 1.013 *)
 
