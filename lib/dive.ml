@@ -33,13 +33,12 @@ let append_profile profile1 profile2 =
 
 type t = {
   profile : profile;
-  tanks : Gas.Tank.t list;
+  tanks : Tank.t list;
 }
 
 let ascent_deco_segment gas initial final =
   (* Positive ascent speed, m/min *)
-  let ascent_speed = 10. in
-  let duration = Time.Span.of_min @@ (initial - final) / ascent_speed in
+  let duration = Time.Span.of_min @@ (initial - final) / Param.ascent_speed in
   { gas; initial; final; duration; is_deco = true }
 
 let is_ascending { initial; final; _ } =
@@ -47,8 +46,7 @@ let is_ascending { initial; final; _ } =
 
 let descent_segment gas initial final =
   (* Positive descent speed, m/min *)
-  let descent_speed = 20. in
-  let duration = Time.Span.of_min @@ (final - initial) / descent_speed in
+  let duration = Time.Span.of_min @@ (final - initial) / Param.descent_speed in
   { gas; initial; final; duration; is_deco = false }
 
 let is_descending { initial; final; _ } =
@@ -117,7 +115,7 @@ let profile_box ?first_line ~display_transitions profile =
         ~f:(fun (run_time, previous_gas) segment ->
             (Time.Span.(run_time + segment.duration), segment.gas),
             segment_box
-              ~must_pp_gas:(not Gas.O.(segment.gas = previous_gas))
+              ~must_pp_gas:(not Gas.(segment.gas = previous_gas))
               ~display_transitions
               run_time
               segment)

@@ -82,8 +82,8 @@ let compartments =
 (**************************)
 
 let full_saturation gas ambient_pressure =
-  let t_n2 = alveolar_pressure `N2 gas ambient_pressure in
-  let t_he = alveolar_pressure `He gas ambient_pressure in
+  let t_n2 = alveolar_pressure Gas.N2 gas ambient_pressure in
+  let t_he = alveolar_pressure Gas.He gas ambient_pressure in
   List.map
     ~f:(const { t_he; t_n2 })
     compartments
@@ -103,8 +103,8 @@ let segment_element_loading element (segment : Dive.segment) p0 { half_life; _ }
 
 let segment_compartment_loading segment { t_n2; t_he } { n2; he } =
   {
-    t_n2 = segment_element_loading `N2 segment t_n2 n2;
-    t_he = segment_element_loading `He segment t_he he;
+    t_n2 = segment_element_loading Gas.N2 segment t_n2 n2;
+    t_he = segment_element_loading Gas.He segment t_he he;
   }
 
 let segment_saturation saturation segment =
@@ -232,7 +232,7 @@ let deco (gf_low, gf_high) tanks depth gas saturation =
       let next_stop_depth =
         Physics.next_3m_depth stop_depth in
       let gas =
-        (Gas.Tank.find_best_deco ~depth:stop_depth tanks).gas in
+        (Tank.find_best_deco ~depth:stop_depth tanks).gas in
       let waiting_time, end_saturation =
         stop_time gf gas stop_depth next_stop_depth saturation in
       let stop_segment =

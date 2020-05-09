@@ -1,5 +1,11 @@
 open Float.O
 
+type fraction = float
+
+type percentage = float
+
+type percentage_int = int
+
 type depth = float
 
 type pressure = float

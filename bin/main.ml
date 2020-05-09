@@ -1,5 +1,4 @@
 open Cmdliner
-open Sterne
 
 let info =
   let doc = "plan a square dive" in
@@ -11,11 +10,17 @@ let info =
   Term.info "sterne" ~version:"0.1.0-alpha" ~doc ~exits:Term.default_exits ~man
 
 let gases =
+  let parser =
+    Cmdliner.Arg.parser_of_kind_of_string
+      ~kind:"a gas (eg. air, oxy, 32 or 10/70)"
+      Gas.parse in
+  let gas_conv =
+    Cmdliner.Arg.conv ~docv:"GAS" (parser, Gas.pp) in
   let doc = "Available gases. First one will be used as bottom gas." in
-  Arg.(value & opt (list Gas.Arg.conv) [Gas.air] & info ["g"; "gases"] ~doc ~docv:"GASES")
+  Arg.(value & opt (list gas_conv) [Gas.air] & info ["g"; "gases"] ~doc ~docv:"GASES")
 
 let tanks =
-  Term.(pure (List.map ~f:Gas.Tank.al80) $ gases)
+  Term.(pure (List.map ~f:Tank.al80) $ gases)
 
 let gf =
   let doc = "Bühlmann gradient factors." in
@@ -41,7 +46,7 @@ let time =
   Term.(pure Time.Span.of_min $ time)
 
 let main tanks gf display_transitions depth time =
-  let profile = Dive.square_profile (List.hd_exn tanks).Gas.Tank.gas ~depth ~time in
+  let profile = Dive.square_profile (List.hd_exn tanks).Tank.gas ~depth ~time in
   let dive = Dive.{ tanks; profile } in
   let deco = Buhlmann.deco_procedure gf dive in
   let full_profile = Dive.append_profile profile deco in

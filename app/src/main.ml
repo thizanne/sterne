@@ -1,6 +1,4 @@
-open! Core_kernel
-open! Incr_dom
-open! Js_of_ocaml
+open Incr_dom
 
 let on_device_ready () =
   Start_app.start

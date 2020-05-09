@@ -1,4 +1,4 @@
-open! Incr_dom
+open Incr_dom
 
 module Model = struct
   type t = int [@@deriving sexp,compare]

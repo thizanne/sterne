@@ -9,5 +9,5 @@
   sterne
   )
  (flags
-  (:standard -open Core_kernel))
+  (:standard -open Core_kernel -open Sterne))
  )
