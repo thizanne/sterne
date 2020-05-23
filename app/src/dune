@@ -9,7 +9,6 @@
   sterne
   incr_dom
   js_of_ocaml
-  ppx_jane
   )
  (preprocess (pps js_of_ocaml-ppx ppx_jane))
  (flags (:standard -open Core_kernel))
