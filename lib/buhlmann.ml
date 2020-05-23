@@ -1,13 +1,14 @@
 open Float.O
+open Physics.Quantity
 
 (********************)
 (* Model definition *)
 (********************)
 
-type tension = Physics.pressure
+type tension = pressure
 
 type compartment_values = {
-  half_life : Physics.time_span;
+  half_life : time_span;
   a : tension (* origin m-value *);
   b : float (* inverse slope *);
 }
@@ -22,7 +23,7 @@ type saturation = {
   t_he : tension;
 }
 
-type saturation_state = saturation list
+(* A saturation state is a saturation list for each compartment *)
 
 let alveolar_pressure element mix ambient_pressure =
   let water_vapour_pressure = 0.0627 (* 47 mmHg *) in
@@ -88,16 +89,18 @@ let full_saturation gas ambient_pressure =
     ~f:(const { t_he; t_n2 })
     compartments
 
-let segment_element_loading element (segment : Dive.segment) p0 { half_life; _ } =
+let segment_element_loading element (segment : Dive.Segment.t) p0 { half_life; _ } =
   (* Schreiner equation *)
   (* p0 = initial inert gas pressure in the compartment *)
-  let initial_pressure = Physics.depth_to_pressure segment.initial in
-  let final_pressure = Physics.depth_to_pressure segment.final in
-  let t = Time.Span.to_min segment.duration in
+  let module S = Dive.Segment in
+  let initial_pressure = Physics.depth_to_pressure @@ S.initial_depth segment in
+  let final_pressure = Physics.depth_to_pressure @@ S.final_depth segment in
+  let t = Time.Span.to_min @@ S.duration segment in
+  let gas = S.gas segment in
   let half_life = Time.Span.to_min half_life in
   let pressure_variation_rate = (final_pressure - initial_pressure) / t in
-  let r = pressure_variation_rate * Gas.fraction element segment.gas in
-  let pi_0 = alveolar_pressure element segment.gas initial_pressure in
+  let r = pressure_variation_rate * Gas.fraction element gas in
+  let pi_0 = alveolar_pressure element gas initial_pressure in
   let k = log 2. / half_life in
   pi_0 + r * (t - 1. / k) - (pi_0 - p0 - (r / k)) * exp (- k * t)
 
@@ -114,7 +117,7 @@ let segment_saturation saturation segment =
     compartments
 
 let profile_saturation profile =
-  List.fold_left
+  Dive.Profile.fold
     ~f:segment_saturation
     ~init:(full_saturation Gas.air Physics.atmospheric_pressure)
     profile
@@ -190,7 +193,7 @@ let first_stop (gf_low, gf_high) gas depth saturation =
       let next_3m =
         Physics.next_3m_depth depth in
       let ascent_segment =
-        Dive.ascent_deco_segment gas depth next_3m in
+        Dive.Segment.ascent_deco ~gas ~initial_depth:depth ~final_depth:next_3m in
       let next_saturation =
         segment_saturation saturation ascent_segment in
       if is_admissible_depth gf next_3m next_saturation
@@ -212,12 +215,14 @@ let rec stop_time gf gas stop_depth next_stop_depth saturation =
   then Time.Span.zero, saturation
   else
     let minute_segment =
-      Dive.minute_stop_segment gas stop_depth in
+      Dive.Segment.minute_deco_stop ~gas ~depth:stop_depth in
+    let one_minute =
+      Dive.Segment.duration minute_segment in
     let minute_saturation =
       segment_saturation saturation minute_segment in
     let remaining_time, saturation =
       stop_time gf gas stop_depth next_stop_depth minute_saturation in
-    Time.Span.(minute_segment.duration + remaining_time), saturation
+    Time.Span.(one_minute + remaining_time), saturation
 
 let deco (gf_low, gf_high) tanks depth gas saturation =
   (* Returns the full deco profile from given current depth,
@@ -232,26 +237,31 @@ let deco (gf_low, gf_high) tanks depth gas saturation =
       let next_stop_depth =
         Physics.next_3m_depth stop_depth in
       let gas =
-        (Tank.find_best_deco ~depth:stop_depth tanks).gas in
+        Tank.(gas @@ find_best_deco ~depth:stop_depth tanks) in
       let waiting_time, end_saturation =
         stop_time gf gas stop_depth next_stop_depth saturation in
       let stop_segment =
-        Dive.flat_deco_segment gas ~depth:stop_depth ~duration:waiting_time in
+        Dive.Segment.flat_deco ~gas ~depth:stop_depth ~duration:waiting_time in
       let ascent_segment =
-        Dive.ascent_deco_segment gas stop_depth next_stop_depth in
+        Dive.Segment.ascent_deco
+          ~gas
+          ~initial_depth:stop_depth
+          ~final_depth:next_stop_depth
+      in
       let next_stop_saturation =
         segment_saturation end_saturation ascent_segment in
       stop_segment ::
       ascent_segment ::
       deco_stops next_stop_depth next_stop_saturation
   in
-  Dive.ascent_deco_segment gas depth first_stop_depth ::
+  Dive.Segment.ascent_deco ~gas ~initial_depth:depth ~final_depth:first_stop_depth ::
   deco_stops first_stop_depth first_stop_saturation
 
-let deco_procedure (gf_low, gf_high) { Dive.tanks; profile } =
+let deco_procedure (gf_low, gf_high) dive =
   deco
     (gf_low, gf_high)
-    tanks
-    (Dive.final_depth profile)
-    (Dive.final_gas profile)
-    (profile_saturation profile)
+    (Dive.tanks dive)
+    (Dive.final_depth dive)
+    (Dive.final_gas dive)
+    (profile_saturation @@ Dive.profile dive)
+  |> Dive.Profile.of_segment_list

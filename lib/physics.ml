@@ -6,11 +6,15 @@ module Quantity = struct
   type percentage_int = int [@@deriving sexp]
   type depth = float [@@deriving sexp]
   type pressure = float [@@deriving sexp]
+  type tension = pressure [@@deriving sexp]
   type time_span = Time.Span.t [@@deriving sexp]
   type volume = float [@@deriving sexp]
+  type dimensionless = float [@@deriving sexp]
+  type other = float [@@deriving sexp]
 end
 
-include Quantity
+let litre x =
+  x / 1000.
 
 let atmospheric_pressure = 1. (* 1.013 *)
 
@@ -26,17 +30,12 @@ let pressure_to_depth pressure =
   (pressure - atmospheric_pressure) / bar_per_meter
 
 let next_3m_depth depth =
-  (* The deeper depth that is both strictly shallower than the [depth]
-     parameter and a multiple of 3m *)
   let idepth = Float.iround_down_exn depth in
   let stop = float Int.(idepth - idepth mod 3) in
   (* If depth = 30., should return 27. *)
   if stop = depth then stop - 3. else stop
 
 let pp_time_span ppf time_span =
-  (* Pretty prints a time span. Round to the second for spans lower
-     than a minute, to the minute otherwise. Minutes are printed as
-     "min" and not "m". *)
   Fmt.string ppf @@
     if Time.Span.(time_span <. minute)
     then

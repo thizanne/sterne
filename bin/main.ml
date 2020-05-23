@@ -46,11 +46,11 @@ let time =
   Term.(pure Time.Span.of_min $ time)
 
 let main tanks gf display_transitions depth time =
-  let profile = Dive.square_profile (List.hd_exn tanks).Tank.gas ~depth ~time in
-  let dive = Dive.{ tanks; profile } in
+  let profile = Dive.Profile.square ~gas:(Tank.gas @@ List.hd_exn tanks) ~depth ~time in
+  let dive = Dive.create ~tanks ~profile in
   let deco = Buhlmann.deco_procedure gf dive in
-  let full_profile = Dive.append_profile profile deco in
-  Fmt.pr "@[%a@]@." (Dive.pp_profile ~display_transitions) full_profile
+  let full_profile = Dive.Profile.append profile deco in
+  Fmt.pr "@[%a@]@." (Dive.Profile.pp ~display_transitions) full_profile
 
 let () =
   Term.exit @@

@@ -4,7 +4,7 @@ type t = {
   o2 : float;
   he : float;
   n2 : float;
-}
+} [@@deriving sexp]
 
 type element =
   | O2

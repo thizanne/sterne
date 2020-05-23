@@ -1,13 +1,30 @@
 module Id = Unique_id.Int63 ()
 
-type t = {
-  gas : Gas.t;
-  start_pressure : Physics.pressure;
-  volume : Physics.volume;
-  id : Id.t;
-}
+module T = struct
+  type t = {
+    gas : Gas.t;
+    start_pressure : Physics.Quantity.pressure;
+    volume : Physics.Quantity.volume;
+    id : Id.t;
+  } [@@deriving fields, sexp]
+
+  let compare { id = x; _ } { id = y; _ } =
+    Id.compare x y
+end
+
+module O = Comparable.Make (T)
+
+include T
+include O
+
+let create ~gas ~start_pressure ~volume () =
+  Fields.create ~id:(Id.create ()) ~gas ~start_pressure ~volume
 
 let find_best ~ppo2_max ~depth available_tanks =
+  (* TODO: move the comparison logic in Gas, and consider returning
+     the less bad gas if none can be breathed. Also consider the empty
+     list. And maybe a balancing option, switching from the current
+     tank only if one is found with more pressure. *)
   let compare_tank_gasses { gas = gas1; _ } { gas = gas2; _ } =
     (* Negative => tank1 is better. We use lists to
        lexicographically compare gasses: more oxygen is better, then
@@ -29,4 +46,4 @@ let find_best_bottom =
   find_best ~ppo2_max:Param.ppo2_max_bottom
 
 let al80 gas =
-  { gas; start_pressure = 207.; volume = 11.1; id = Id.create (); }
+  { gas; start_pressure = 207.; volume = Physics.litre 11.1; id = Id.create (); }
