@@ -37,10 +37,10 @@ module Segment : sig
   val minute_deco_stop : gas:Gas.t -> depth:depth -> t
   (** A deco stop segment that longs one minute. *)
 
-  val ascent_deco : gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
-  val ascent_bottom : gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
+  val ascent_deco : Param.t -> gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
+  val ascent_bottom : Param.t -> gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
 
-  val descent : gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
+  val descent : Param.t -> gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
   (** Descent segments are necessarily bottom ones. *)
 end
 
@@ -58,7 +58,7 @@ module Profile : sig
 
   val of_segment_list : Segment.t list -> t
 
-  val square : gas:Gas.t -> depth:depth -> time:time_span -> t
+  val square : Param.t -> gas:Gas.t -> depth:depth -> time:time_span -> t
   (** A square profile, composed of a descent segment to the specified
       depth and a flat bottom segment. [time] is the total time of the
       profile. The behaviour is unspecified if the needed descent time

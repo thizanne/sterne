@@ -25,27 +25,27 @@ module Segment = struct
     is_deco segment &&
     segment.final_depth = segment.initial_depth
 
-  let ascent ~is_deco ~gas ~initial_depth ~final_depth =
+  let ascent (param : Param.t) ~is_deco ~gas ~initial_depth ~final_depth =
     (* Positive ascent speed, m/min *)
     let duration =
       Time.Span.of_min @@
-      (initial_depth - final_depth) / Param.ascent_speed in
+      (initial_depth - final_depth) / param.ascent_speed in
     { gas; initial_depth; final_depth; duration; is_deco }
 
-  let ascent_deco ~gas ~initial_depth ~final_depth =
-    ascent ~is_deco:true ~gas ~initial_depth ~final_depth
+  let ascent_deco param ~gas ~initial_depth ~final_depth =
+    ascent param ~is_deco:true ~gas ~initial_depth ~final_depth
 
-  let ascent_bottom ~gas ~initial_depth ~final_depth =
-    ascent ~is_deco:false ~gas ~initial_depth ~final_depth
+  let ascent_bottom param ~gas ~initial_depth ~final_depth =
+    ascent param ~is_deco:false ~gas ~initial_depth ~final_depth
 
   let is_ascending { initial_depth; final_depth; _ } =
     initial_depth > final_depth
 
-  let descent ~gas ~initial_depth ~final_depth =
+  let descent (param : Param.t) ~gas ~initial_depth ~final_depth =
     (* Positive descent speed, m/min *)
     let duration =
       Time.Span.of_min @@
-      (final_depth - initial_depth) / Param.descent_speed in
+      (final_depth - initial_depth) / param.descent_speed in
     { gas; initial_depth; final_depth; duration; is_deco = false }
 
   let is_descending { initial_depth; final_depth; _ } =
@@ -91,9 +91,9 @@ module Profile = struct
   let final_gas profile =
     Segment.gas (List.last_exn profile)
 
-  let square ~gas ~depth ~time =
+  let square (param : Param.t) ~gas ~depth ~time =
     let descent =
-      Segment.descent ~gas ~initial_depth:0. ~final_depth:depth in
+      Segment.descent param ~gas ~initial_depth:0. ~final_depth:depth in
     let bottom =
       Segment.flat_bottom ~gas ~depth ~duration:Time.Span.(time - descent.duration) in
     [descent; bottom]

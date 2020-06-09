@@ -1,12 +1,12 @@
-(** {1 Some parameters for diving related computations } *)
+open Physics.Quantity
 
-(** These parameters are currently set in the source and cannot be
-    modified. *)
+(** {1 General parameters for diving computations } *)
 
-val ascent_speed : Physics.Quantity.other
+type t = {
+  ascent_speed : other;
+  descent_speed : other;
+  ppo2_max_deco : pressure;
+  ppo2_max_bottom : pressure;
+} [@@deriving fields]
 
-val descent_speed : Physics.Quantity.other
-
-val ppo2_max_deco : Physics.Quantity.pressure
-
-val ppo2_max_bottom : Physics.Quantity.pressure
+val default : t
