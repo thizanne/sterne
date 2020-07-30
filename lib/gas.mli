@@ -26,10 +26,12 @@ val air : t
 val oxy : t
 
 val nitrox : o2:percentage -> t
+val nitrox' : o2:fraction -> t
 
 val nx : percentage_int -> t
 
 val trimix : o2:percentage -> he:percentage -> t
+val trimix' : o2:fraction -> he:fraction -> t
 
 val tx : percentage_int -> percentage_int -> t
 (** [tx o2 he] *)

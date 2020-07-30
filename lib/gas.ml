@@ -34,18 +34,20 @@ let from_percent percentage =
 let to_percent frac =
   frac * 100.
 
+let trimix' ~o2 ~he =
+  { o2; he; n2 = 1. - o2 - he }
+
 let trimix ~o2 ~he =
-  {
-    o2 = from_percent o2;
-    he = from_percent he;
-    n2 = from_percent (100. - o2 - he)
-  }
+  trimix' ~o2:(from_percent o2) ~he:(from_percent he)
 
 let tx o2 he =
   trimix ~o2:(float o2) ~he:(float he)
 
 let tx' (o2, he) =
   tx o2 he
+
+let nitrox' ~o2 =
+  trimix' ~o2 ~he:0.
 
 let nitrox ~o2 =
   trimix ~o2 ~he:0.
