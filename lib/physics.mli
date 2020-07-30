@@ -54,6 +54,9 @@ end
 
 open Quantity
 
+val percent_to_fraction : percentage -> fraction
+val fraction_to_percent : fraction -> percentage
+
 val litre : float -> volume
 (** When it makes more sense to use litres for a volume. *)
 

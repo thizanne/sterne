@@ -28,17 +28,13 @@ let fraction element gas = match element with
   | N2 -> gas.n2
   | He -> gas.he
 
-let from_percent percentage =
-  percentage / 100.
-
-let to_percent frac =
-  frac * 100.
-
 let trimix' ~o2 ~he =
   { o2; he; n2 = 1. - o2 - he }
 
 let trimix ~o2 ~he =
-  trimix' ~o2:(from_percent o2) ~he:(from_percent he)
+  trimix'
+    ~o2:(Physics.percent_to_fraction o2)
+    ~he:(Physics.percent_to_fraction he)
 
 let tx o2 he =
   trimix ~o2:(float o2) ~he:(float he)
@@ -71,7 +67,7 @@ let is_oxy gas =
   gas = oxy
 
 let heliair ~o2 =
-  let o2 = from_percent o2 in
+  let o2 = Physics.percent_to_fraction o2 in
   let n2 = (o2 / air.o2) * air.n2 in
   let he = 1. - (o2 + n2) in
   { o2; he; n2 }
@@ -102,8 +98,11 @@ let pp ppf gas =
   else if is_air gas
   then string ppf "Air"
   else if is_nitrox gas
-  then pf ppf "Nx %.0f" (to_percent gas.o2)
-  else pf ppf "Tx %.0f/%.0f" (to_percent gas.o2) (to_percent gas.he)
+  then pf ppf "Nx %.0f" (Physics.fraction_to_percent gas.o2)
+  else
+    pf ppf "Tx %.0f/%.0f"
+      (Physics.fraction_to_percent gas.o2)
+      (Physics.fraction_to_percent gas.he)
 
 let parse input =
   (* TODO: be case insensitive, and allow mix prefix (Nx, Tx). *)

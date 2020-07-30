@@ -13,6 +13,12 @@ module Quantity = struct
   type other = float [@@deriving sexp]
 end
 
+let percent_to_fraction percentage =
+  percentage / 100.
+
+let fraction_to_percent frac =
+  frac * 100.
+
 let litre x =
   x / 1000.
 
