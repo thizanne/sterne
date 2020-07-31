@@ -19,6 +19,18 @@ let percent_to_fraction percentage =
 let fraction_to_percent frac =
   frac * 100.
 
+let round_fraction_percent_up fraction =
+  fraction
+  |> fraction_to_percent
+  |> Float.round_up
+  |> percent_to_fraction
+
+let round_fraction_percent_down fraction =
+  fraction
+  |> fraction_to_percent
+  |> Float.round_down
+  |> percent_to_fraction
+
 let litre x =
   x / 1000.
 
