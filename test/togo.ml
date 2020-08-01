@@ -10,7 +10,7 @@ let tanks =
 let profile =
   Dive.Profile.square
     param
-    ~gas:(Gas.tx 20 30)
+    ~tank:(List.hd_exn tanks)
     ~depth:55.
     ~time:(Time.Span.of_min 25.)
 

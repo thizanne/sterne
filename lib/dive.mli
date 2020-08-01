@@ -8,6 +8,7 @@ module Segment : sig
   val initial_depth : t -> depth
   val final_depth : t -> depth
   val duration : t -> time_span
+  val tank : t -> Tank.t
   val gas : t -> Gas.t
 
   (** Dive segments are either bottom or decompression segments. Deco
@@ -31,16 +32,16 @@ module Segment : sig
   val is_descending : t -> bool
   val is_flat : t -> bool
 
-  val flat_bottom : gas:Gas.t -> depth:depth -> duration:time_span -> t
-  val flat_deco : gas:Gas.t -> depth:depth -> duration:time_span -> t
+  val flat_bottom : tank:Tank.t -> depth:depth -> duration:time_span -> t
+  val flat_deco : tank:Tank.t -> depth:depth -> duration:time_span -> t
 
-  val minute_deco_stop : gas:Gas.t -> depth:depth -> t
+  val minute_deco_stop : tank:Tank.t -> depth:depth -> t
   (** A deco stop segment that longs one minute. *)
 
-  val ascent_deco : Param.t -> gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
-  val ascent_bottom : Param.t -> gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
+  val ascent_deco : Param.t -> tank:Tank.t -> initial_depth:depth -> final_depth:depth -> t
+  val ascent_bottom : Param.t -> tank:Tank.t -> initial_depth:depth -> final_depth:depth -> t
 
-  val descent : Param.t -> gas:Gas.t -> initial_depth:depth -> final_depth:depth -> t
+  val descent : Param.t -> tank:Tank.t -> initial_depth:depth -> final_depth:depth -> t
   (** Descent segments are necessarily bottom ones. *)
 end
 
@@ -48,7 +49,7 @@ module Profile : sig
   type t
 
   val final_depth : t -> depth
-  val final_gas : t -> Gas.t
+  val final_tank : t -> Tank.t
 
   val one_segment : Segment.t -> t
   (** A profile composed on one single segment. *)
@@ -58,7 +59,7 @@ module Profile : sig
 
   val of_segment_list : Segment.t list -> t
 
-  val square : Param.t -> gas:Gas.t -> depth:depth -> time:time_span -> t
+  val square : Param.t -> tank:Tank.t -> depth:depth -> time:time_span -> t
   (** A square profile, composed of a descent segment to the specified
       depth and a flat bottom segment. [time] is the total time of the
       profile. The behaviour is unspecified if the needed descent time
@@ -86,4 +87,4 @@ val profile : t -> Profile.t
 val tanks : t -> Tank.t list
 
 val final_depth : t -> depth
-val final_gas : t -> Gas.t
+val final_tank : t -> Tank.t

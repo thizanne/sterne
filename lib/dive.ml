@@ -6,9 +6,12 @@ module Segment = struct
     initial_depth : depth;
     final_depth : depth;
     duration : time_span;
-    gas : Gas.t;
+    tank : Tank.t;
     is_deco : bool;
   } [@@deriving fields]
+
+  let gas { tank; _ } =
+    Tank.gas tank
 
   let is_deco { is_deco; _ } =
     is_deco
@@ -25,34 +28,34 @@ module Segment = struct
     is_deco segment &&
     segment.final_depth = segment.initial_depth
 
-  let ascent (param : Param.t) ~is_deco ~gas ~initial_depth ~final_depth =
+  let ascent (param : Param.t) ~is_deco ~tank ~initial_depth ~final_depth =
     (* Positive ascent speed, m/min *)
     let duration =
       Time.Span.of_min @@
       (initial_depth - final_depth) / param.ascent_speed in
-    { gas; initial_depth; final_depth; duration; is_deco }
+    { tank; initial_depth; final_depth; duration; is_deco }
 
-  let ascent_deco param ~gas ~initial_depth ~final_depth =
-    ascent param ~is_deco:true ~gas ~initial_depth ~final_depth
+  let ascent_deco param ~tank ~initial_depth ~final_depth =
+    ascent param ~is_deco:true ~tank ~initial_depth ~final_depth
 
-  let ascent_bottom param ~gas ~initial_depth ~final_depth =
-    ascent param ~is_deco:false ~gas ~initial_depth ~final_depth
+  let ascent_bottom param ~tank ~initial_depth ~final_depth =
+    ascent param ~is_deco:false ~tank ~initial_depth ~final_depth
 
   let is_ascending { initial_depth; final_depth; _ } =
     initial_depth > final_depth
 
-  let descent (param : Param.t) ~gas ~initial_depth ~final_depth =
+  let descent (param : Param.t) ~tank ~initial_depth ~final_depth =
     (* Positive descent speed, m/min *)
     let duration =
       Time.Span.of_min @@
       (final_depth - initial_depth) / param.descent_speed in
-    { gas; initial_depth; final_depth; duration; is_deco = false }
+    { tank; initial_depth; final_depth; duration; is_deco = false }
 
   let is_descending { initial_depth; final_depth; _ } =
     initial_depth < final_depth
 
-  let flat ~gas ~is_deco ~depth ~duration =
-    { gas; initial_depth = depth; final_depth = depth; duration; is_deco }
+  let flat ~tank ~is_deco ~depth ~duration =
+    { tank; initial_depth = depth; final_depth = depth; duration; is_deco }
 
   let flat_deco =
     flat ~is_deco:true
@@ -63,8 +66,8 @@ module Segment = struct
   let is_flat { initial_depth; final_depth; _ } =
     initial_depth = final_depth
 
-  let minute_deco_stop ~gas ~depth =
-    flat_deco ~gas ~depth ~duration:Time.Span.minute
+  let minute_deco_stop ~tank ~depth =
+    flat_deco ~tank ~depth ~duration:Time.Span.minute
 end
 
 module Profile = struct
@@ -88,14 +91,14 @@ module Profile = struct
   let final_depth profile =
     Segment.final_depth (List.last_exn profile)
 
-  let final_gas profile =
-    Segment.gas (List.last_exn profile)
+  let final_tank profile =
+    Segment.tank (List.last_exn profile)
 
-  let square (param : Param.t) ~gas ~depth ~time =
+  let square (param : Param.t) ~tank ~depth ~time =
     let descent =
-      Segment.descent param ~gas ~initial_depth:0. ~final_depth:depth in
+      Segment.descent param ~tank ~initial_depth:0. ~final_depth:depth in
     let bottom =
-      Segment.flat_bottom ~gas ~depth ~duration:Time.Span.(time - descent.duration) in
+      Segment.flat_bottom ~tank ~depth ~duration:Time.Span.(time - descent.duration) in
     [descent; bottom]
 
   let segment_box ~display_transitions ~must_pp_gas start_time segment =
@@ -113,7 +116,7 @@ module Profile = struct
         asprintf "%a" Physics.pp_time_span segment.duration;
         asprintf "%a" Physics.pp_time_span Time.Span.(start_time + segment.duration);
         if must_pp_gas
-        then asprintf "%a" Gas.pp segment.gas
+        then asprintf "%a" Gas.pp (Segment.gas segment)
         else text "";
       |] in
     if not display_transitions &&
@@ -139,7 +142,7 @@ module Profile = struct
           ~f:(fun (run_time, previous_gas) segment ->
               (Time.Span.(run_time + Segment.duration segment), Segment.gas segment),
               segment_box
-                ~must_pp_gas:(not Gas.(segment.gas = previous_gas))
+                ~must_pp_gas:(not Gas.(Segment.gas segment = previous_gas))
                 ~display_transitions
                 run_time
                 segment)
@@ -172,5 +175,5 @@ let create ~profile ~tanks =
 let final_depth { profile; _ } =
   Profile.final_depth profile
 
-let final_gas { profile; _ } =
-  Profile.final_gas profile
+let final_tank { profile; _ } =
+  Profile.final_tank profile
