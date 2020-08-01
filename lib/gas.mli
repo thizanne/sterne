@@ -69,3 +69,8 @@ val pp : Format.formatter -> t -> unit
 
 val parse : string -> t option
 (** Parses [air], [oxy], [32] or [18/45]. *)
+
+module Best : sig
+  val nitrox : ?ppo2:pressure -> depth:depth -> unit -> t
+  val trimix : ?ppo2:pressure -> ?end_:depth -> depth:depth -> unit -> t
+end
