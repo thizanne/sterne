@@ -12,7 +12,7 @@
     "license": "UNLICENSED",
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.14.0",
-        "cordova": "^9.0.0",
+        "cordova": "^10.0.0",
         "cordova-android": "^9.0.0",
         "cordova-ios": "^6.1.0",
         "cordova-plugin-dialogs": "^2.0.2",
@@ -31,7 +31,7 @@
         ]
     },
     "devDependencies": {
-        "@babel/core": "^7.11.0",
+        "@babel/core": "^7.11.4",
         "@babel/preset-env": "^7.11.0",
         "@babel/register": "^7.10.5",
         "babel-loader": "^8.1.0",
@@ -41,7 +41,7 @@
         "gulp-babel": "^8.0.0",
         "gulp-cli": "^2.3.0",
         "gulp-if": "^3.0.0",
-        "gulp-load-plugins": "^2.0.3",
+        "gulp-load-plugins": "^2.0.4",
         "gulp-sass": "^4.1.0",
         "gulp-sourcemaps": "^2.6.5",
         "gulp-uglify": "^3.0.2",
