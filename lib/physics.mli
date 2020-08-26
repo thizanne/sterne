@@ -20,33 +20,33 @@ module Quantity : sig
       easier definition of types implying quantities.
   *)
 
-  type fraction = float [@@deriving sexp]
+  type fraction = float [@@deriving sexp,compare,equal]
   (** A fraction is between [0.] and [1.], both included. *)
 
-  type percentage = float [@@deriving sexp]
+  type percentage = float [@@deriving sexp,compare,equal]
   (** A percentage is between [0.] and [100.], both included. *)
 
-  type percentage_int = int [@@deriving sexp]
+  type percentage_int = int [@@deriving sexp,compare,equal]
   (** Sometimes it may be easier to manipulate integers. Between [0]
       and [100]. *)
 
-  type depth = float [@@deriving sexp]
+  type depth = float [@@deriving sexp,compare,equal]
   (** Expressed in meters. *)
 
-  type pressure = float [@@deriving sexp]
+  type pressure = float [@@deriving sexp,compare,equal]
   (** Expressed in bar. *)
 
-  type tension = pressure [@@deriving sexp]
+  type tension = pressure [@@deriving sexp,compare,equal]
 
-  type time_span = Time.Span.t [@@deriving sexp]
+  type time_span = Time.Span.t [@@deriving sexp,compare,equal]
 
-  type volume = float [@@deriving sexp]
+  type volume = float [@@deriving sexp,compare,equal]
   (** Expressed in cubic meters. *)
 
-  type dimensionless = float [@@deriving sexp]
+  type dimensionless = float [@@deriving sexp,compare,equal]
   (** For quantities with no dimension nor invariant *)
 
-  type other = float [@@deriving sexp]
+  type other = float [@@deriving sexp,compare,equal]
   (** For quantities (eg. bar / m) not expressed by other types
       (typically too seldom used to warrant a dedicated name) *)
 

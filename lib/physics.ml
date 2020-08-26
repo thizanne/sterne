@@ -1,16 +1,16 @@
 open Float.O
 
 module Quantity = struct
-  type fraction = float [@@deriving sexp]
-  type percentage = float [@@deriving sexp]
-  type percentage_int = int [@@deriving sexp]
-  type depth = float [@@deriving sexp]
-  type pressure = float [@@deriving sexp]
-  type tension = pressure [@@deriving sexp]
-  type time_span = Time.Span.t [@@deriving sexp]
-  type volume = float [@@deriving sexp]
-  type dimensionless = float [@@deriving sexp]
-  type other = float [@@deriving sexp]
+  type fraction = float [@@deriving sexp,compare,equal]
+  type percentage = float [@@deriving sexp,compare,equal]
+  type percentage_int = int [@@deriving sexp,compare,equal]
+  type depth = float [@@deriving sexp,compare,equal]
+  type pressure = float [@@deriving sexp,compare,equal]
+  type tension = pressure [@@deriving sexp,compare,equal]
+  type time_span = Time.Span.t [@@deriving sexp,compare,equal]
+  type volume = float [@@deriving sexp,compare,equal]
+  type dimensionless = float [@@deriving sexp,compare,equal]
+  type other = float [@@deriving sexp,compare,equal]
 end
 
 let percent_to_fraction percentage =
