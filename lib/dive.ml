@@ -101,8 +101,7 @@ module Profile = struct
       Segment.flat_bottom ~tank ~depth ~duration:Time.Span.(time - descent.duration) in
     [descent; bottom]
 
-  let segment_box ~display_transitions ~must_pp_gas start_time segment =
-    let open PrintBox in
+  let segment_infos ~display_transitions ~must_pp_gas start_time segment =
     let direction =
       if Segment.is_ascending segment
       then "↗"
@@ -110,15 +109,15 @@ module Profile = struct
       then "↘"
       else "-" in
     let box =
-      [|
-        text direction;
-        asprintf "%gm" segment.final_depth;
-        asprintf "%a" Physics.pp_time_span segment.duration;
-        asprintf "%a" Physics.pp_time_span Time.Span.(start_time + segment.duration);
+      [
+        direction;
+        Format.asprintf "%g m" segment.final_depth;
+        Format.asprintf "%a" Physics.pp_time_span segment.duration;
+        Format.asprintf "%a" Physics.pp_time_span Time.Span.(start_time + segment.duration);
         if must_pp_gas
-        then asprintf "%a" Gas.pp (Segment.gas segment)
-        else text "";
-      |] in
+        then Format.asprintf "%a" Gas.pp (Segment.gas segment)
+        else "";
+      ] in
     if not display_transitions &&
        not must_pp_gas &&
        Segment.is_deco_transition segment
@@ -129,10 +128,10 @@ module Profile = struct
           deco transition where we change gas may still happen if the
           first transition happens to be 3m and the higher ppo2 on deco
           allows gas changing. Thus we must still test must_pp_gas.*)
-    then Array.map ~f:(Fn.const empty) box
-    else box
+    then None
+    else Some box
 
-  let profile_box ?first_line ~display_transitions profile =
+  let to_strings ?(display_transitions=false) profile =
     match profile with
     | [] -> assert false
     | initial_segment :: segments ->
@@ -141,7 +140,7 @@ module Profile = struct
         List.folding_map
           ~f:(fun (run_time, previous_gas) segment ->
               (Time.Span.(run_time + Segment.duration segment), Segment.gas segment),
-              segment_box
+              segment_infos
                 ~must_pp_gas:(not Gas.(Segment.gas segment = previous_gas))
                 ~display_transitions
                 run_time
@@ -149,19 +148,20 @@ module Profile = struct
           ~init:(Segment.duration initial_segment, Segment.gas initial_segment)
           segments in
       let box =
-        segment_box ~display_transitions ~must_pp_gas:true Time.Span.zero initial_segment ::
+        segment_infos ~display_transitions ~must_pp_gas:true Time.Span.zero initial_segment ::
         tail_box_lines in
-      let box = Option.value_map ~default:box ~f:(Fn.flip List.cons box) first_line in
-      PrintBox.(grid ~pad:(hpad 1) ~bars:false @@ Array.of_list box)
+      List.filter_opt box
 
   let pp ?(display_transitions=false) ppf profile =
     let () = PrintBox_unicode.setup () in
-    let first_line =
-      Array.map
-        ~f:PrintBox.(text_with_style (Style.bold))
-        [|""; "Depth"; "Duration"; "Runtime"; "Gas"|] in
-    PrintBox_text.pp ppf (profile_box ~display_transitions ~first_line profile)
-
+    let infos = to_strings ~display_transitions profile in
+    let box_l = List.map ~f:(List.map ~f:PrintBox.text) infos in
+    let first_line = [""; "Depth"; "Duration"; "Runtime"; "Gas"] in
+    let bold = PrintBox.text_with_style PrintBox.Style.bold in
+    let first_line = List.map ~f:bold first_line in
+    let box_l = first_line :: box_l in
+    let box = PrintBox.grid_l ~pad:(PrintBox.hpad 1) ~bars:false box_l in
+    PrintBox_text.pp ppf box
 end
 
 type t = {

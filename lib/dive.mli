@@ -72,6 +72,10 @@ module Profile : sig
 
   (** {2 Pretty printing} *)
 
+  val to_strings : ?display_transitions:bool -> t -> string list list
+  (** Returns a list of list of strings, each sublist describing
+      a segment as [direction; depth; duration; runtime; gas] *)
+
   val pp : ?display_transitions:bool -> Format.formatter -> t -> unit
   (** If [display_transitions] is [false], the decompression
       transition segments are not displayed. *)
