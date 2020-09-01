@@ -1,7 +1,7 @@
 open Physics.Quantity
 
 (** A segment is a dive part where one gas is breathed, and the
-   vertical speed is constant *)
+    vertical speed is constant *)
 module Segment : sig
   type t
 
@@ -45,50 +45,36 @@ module Segment : sig
   (** Descent segments are necessarily bottom ones. *)
 end
 
-module Profile : sig
-  type t
-
-  val final_depth : t -> depth
-  val final_tank : t -> Tank.t
-
-  val one_segment : Segment.t -> t
-  (** A profile composed on one single segment. *)
-
-  val add_segment : t -> Segment.t -> t
-  (** Add a segment at the end of a profile. *)
-
-  val of_segment_list : Segment.t list -> t
-
-  val square : Param.t -> tank:Tank.t -> depth:depth -> time:time_span -> t
-  (** A square profile, composed of a descent segment to the specified
-      depth and a flat bottom segment. [time] is the total time of the
-      profile. The behaviour is unspecified if the needed descent time
-      is greater than the total time. *)
-
-  val append : t -> t -> t
-  (** Append two profiles by concatenating their segments. *)
-
-  val fold : f:('a -> Segment.t -> 'a) -> init:'a -> t -> 'a
-
-  (** {2 Pretty printing} *)
-
-  val to_strings : ?display_transitions:bool -> t -> string list list
-  (** Returns a list of list of strings, each sublist describing
-      a segment as [direction; depth; duration; runtime; gas] *)
-
-  val pp : ?display_transitions:bool -> Format.formatter -> t -> unit
-  (** If [display_transitions] is [false], the decompression
-      transition segments are not displayed. *)
-end
-
 type t
-(** The type of dives, composed of a profile and some available
-    tanks. *)
-
-val create: profile:Profile.t -> tanks:Tank.t list -> t
-
-val profile : t -> Profile.t
-val tanks : t -> Tank.t list
 
 val final_depth : t -> depth
 val final_tank : t -> Tank.t
+
+val one_segment : Segment.t -> t
+(** A profile composed on one single segment. *)
+
+val add_segment : t -> Segment.t -> t
+(** Add a segment at the end of a profile. *)
+
+val of_segment_list : Segment.t list -> t
+
+val square : Param.t -> tank:Tank.t -> depth:depth -> time:time_span -> t
+(** A square profile, composed of a descent segment to the specified
+    depth and a flat bottom segment. [time] is the total time of the
+    profile. The behaviour is unspecified if the needed descent time
+    is greater than the total time. *)
+
+val append : t -> t -> t
+(** Append two profiles by concatenating their segments. *)
+
+val fold : f:('a -> Segment.t -> 'a) -> init:'a -> t -> 'a
+
+(** {2 Pretty printing} *)
+
+val to_strings : ?display_transitions:bool -> t -> string list list
+(** Returns a list of list of strings, each sublist describing
+    a segment as [direction; depth; duration; runtime; gas] *)
+
+val pp : ?display_transitions:bool -> Format.formatter -> t -> unit
+(** If [display_transitions] is [false], the decompression
+    transition segments are not displayed. *)

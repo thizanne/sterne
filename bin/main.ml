@@ -47,12 +47,10 @@ let time =
 
 let main tanks gf display_transitions depth time =
   let param = Param.default in
-  let profile =
-    Dive.Profile.square param ~tank:(List.hd_exn tanks) ~depth ~time in
-  let dive = Dive.create ~tanks ~profile in
-  let deco = Buhlmann.deco_procedure param gf dive in
-  let full_profile = Dive.Profile.append profile deco in
-  Fmt.pr "@[%a@]@." (Dive.Profile.pp ~display_transitions) full_profile
+  let profile = Profile.square param ~tank:(List.hd_exn tanks) ~depth ~time in
+  let deco = Buhlmann.deco_procedure param gf tanks profile in
+  let full_profile = Profile.append profile deco in
+  Fmt.pr "@[%a@]@." (Profile.pp ~display_transitions) full_profile
 
 let () =
   Term.exit @@

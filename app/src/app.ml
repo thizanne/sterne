@@ -52,7 +52,7 @@ let one_segment_node segment =
 
 let runtime_node profile =
   let open Vdom in
-  let strings = Dive.Profile.to_strings profile in
+  let strings = Profile.to_strings profile in
   Node.div [Attr.class_ "mdc-data-table"] [
     Node.div [Attr.class_ "mdc-data-table__table-container"] [
       Node.table [Attr.class_ "mdc-data-table__table"] [
@@ -103,15 +103,14 @@ let view m ~inject =
   let%map runtime_node =
     m >>| fun { Model.depth; time } ->
     let profile =
-      Dive.Profile.square
+      Profile.square
         Param.default
         ~tank:(Tank.al80 Gas.air)
         ~depth ~time in
     let tanks = [Tank.al80 Gas.air] in
     let gf = (0.8, 0.8) in
-    let dive = Dive.create ~tanks ~profile in
-    let deco = Buhlmann.deco_procedure Param.default gf dive in
-    let full_profile = Dive.Profile.append profile deco in
+    let deco = Buhlmann.deco_procedure Param.default gf tanks profile in
+    let full_profile = Profile.append profile deco in
     runtime_node full_profile
     in
     Node.div []

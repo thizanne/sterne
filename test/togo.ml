@@ -7,21 +7,18 @@ let tanks =
   let open Tank in
   [al80 @@ tx 20 30; al80 @@ nx 50; al80 @@ oxy]
 
-let profile =
-  Dive.Profile.square
+let togo_profile =
+  Profile.square
     param
     ~tank:(List.hd_exn tanks)
     ~depth:55.
     ~time:(Time.Span.of_min 25.)
 
-let togo =
-  Dive.create ~tanks ~profile
-
 let deco =
-  Buhlmann.deco_procedure param (0.3, 0.8) togo
+  Buhlmann.deco_procedure param (0.3, 0.8) tanks togo_profile
 
 let full =
-  Dive.Profile.append (Dive.profile togo) deco
+  Profile.append togo_profile deco
 
 let () =
-  Dive.Profile.pp Fmt.stdout full
+  Profile.pp Fmt.stdout full
