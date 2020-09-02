@@ -14,6 +14,7 @@ include (module type of O)
 val gas : t -> Gas.t
 val start_pressure : t -> pressure
 val volume : t -> volume
+val normal_volume_full : t -> normal_volume
 
 val create : gas:Gas.t -> start_pressure:pressure -> volume:volume -> unit -> t
 (** Create a new tank with specified parameters. Tanks created through

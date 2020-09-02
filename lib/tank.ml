@@ -20,6 +20,9 @@ include O
 let create ~gas ~start_pressure ~volume () =
   Fields.create ~id:(Id.create ()) ~gas ~start_pressure ~volume
 
+let normal_volume_full { start_pressure; volume; _ } =
+  Physics.normal_volume_of_gas ~pressure:start_pressure ~volume
+
 let find_best ~ppo2_max ~depth available_tanks =
   (* TODO: move the comparison logic in Gas, and consider returning
      the less bad gas if none can be breathed. Also consider the empty

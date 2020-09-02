@@ -9,6 +9,7 @@ module Quantity = struct
   type tension = pressure [@@deriving sexp,compare,equal]
   type time_span = Time.Span.t [@@deriving sexp,compare,equal]
   type volume = float [@@deriving sexp,compare,equal]
+  type normal_volume = float [@@deriving sexp,compare,equal]
   type dimensionless = float [@@deriving sexp,compare,equal]
   type other = float [@@deriving sexp,compare,equal]
 end
@@ -52,6 +53,16 @@ let next_3m_depth depth =
   let stop = float Int.(idepth - idepth mod 3) in
   (* If depth = 30., should return 27. *)
   if stop = depth then stop - 3. else stop
+
+let normal_volume_of_gas ~pressure ~volume =
+  (* Currently assume ideal gas law *)
+  pressure * volume
+
+let pressure_of_gas ~volume ~normal_volume =
+  normal_volume / volume
+
+let volume_of_gas ~normal_volume ~pressure =
+  normal_volume / pressure
 
 let pp_time_span ppf time_span =
   Fmt.string ppf @@

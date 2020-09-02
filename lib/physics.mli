@@ -43,6 +43,11 @@ module Quantity : sig
   type volume = float [@@deriving sexp,compare,equal]
   (** Expressed in cubic meters. *)
 
+  type normal_volume = float [@@deriving sexp,compare,equal]
+  (** Has the dimension of [pressure × volume]. Used to describe
+      quantities of gas by the volume they would have under a pressure of 1 bar.
+  *)
+
   type dimensionless = float [@@deriving sexp,compare,equal]
   (** For quantities with no dimension nor invariant *)
 
@@ -79,6 +84,21 @@ val pressure_to_depth : pressure -> depth
 val next_3m_depth : depth -> depth
 (** The deeper depth that is both strictly shallower than the [depth]
     parameter and a multiple of 3m *)
+
+val normal_volume_of_gas : pressure:pressure -> volume:volume -> normal_volume
+(** Computes the normal volume of a (physical) volume of gas under
+    some given pressure. May (and currently does) assume ideal gas law.
+*)
+
+val pressure_of_gas : volume:volume -> normal_volume:normal_volume -> pressure
+(** The pressure under which the [normal_volume] amount of gas must be
+    compressed to fit in [volume]
+*)
+
+val volume_of_gas : normal_volume:normal_volume -> pressure:pressure -> volume
+(** The volume occupied by the [normal_volume] amount of gas when
+    compressed under [pressure].
+*)
 
 val pp_time_span : Format.formatter -> time_span -> unit
 (** Pretty prints a time span. Round to the second for spans lower
