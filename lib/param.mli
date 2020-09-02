@@ -7,6 +7,7 @@ type t = <
   descent_speed : other;
   ppo2_max_deco : pressure;
   ppo2_max_bottom : pressure;
+  sac : Gas_consumption.sac;
 >
 
 val default : t
