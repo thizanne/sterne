@@ -11,6 +11,10 @@ end
 
 include (module type of O)
 
+include Comparator.S with type t := t
+module Map : Map.S with type Key.t = t
+module Set : Set.S with type Elt.t = t
+
 val gas : t -> Gas.t
 val start_pressure : t -> pressure
 val volume : t -> volume
