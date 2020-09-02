@@ -3,8 +3,8 @@ module Id = Unique_id.Int63 ()
 module T = struct
   type t = {
     gas : Gas.t;
-    start_pressure : Physics.Quantity.pressure;
     volume : Physics.Quantity.volume;
+    start_pressure : Physics.Quantity.pressure;
     id : Id.t;
   } [@@deriving fields, sexp]
 
@@ -17,11 +17,11 @@ module O = Comparable.Make(T)
 include T
 include O
 
-let create ~gas ~start_pressure ~volume () =
-  Fields.create ~id:(Id.create ()) ~gas ~start_pressure ~volume
+let create ~gas ~volume ~start_pressure () =
+  Fields.create ~id:(Id.create ()) ~gas ~volume ~start_pressure
 
-let normal_volume_full { start_pressure; volume; _ } =
-  Physics.normal_volume_of_gas ~pressure:start_pressure ~volume
+let normal_volume_full { volume; start_pressure; _ } =
+  Physics.normal_volume_of_gas ~volume ~pressure:start_pressure
 
 let find_best ~ppo2_max ~depth available_tanks =
   (* TODO: move the comparison logic in Gas, and consider returning
@@ -48,5 +48,14 @@ let find_best_deco param =
 let find_best_bottom param =
   find_best ~ppo2_max:param#ppo2_max_bottom
 
-let al80 gas =
-  { gas; start_pressure = 207.; volume = Physics.litre 11.1; id = Id.create (); }
+(** Common tanks *)
+
+type tank_creator = Gas.t -> unit -> t
+
+let tank_creator vol_litre start_pressure =
+  fun gas () ->
+  { gas; volume = Physics.litre vol_litre; start_pressure; id = Id.create () }
+
+let al80 = tank_creator 11.1 207.
+
+let double_al80 = tank_creator 22.2 207.

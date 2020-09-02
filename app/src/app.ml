@@ -62,6 +62,8 @@ let runtime_node profile =
     ]
   ]
 
+let tank = Tank.double_al80 Gas.air ()
+
 let view m ~inject =
   let open Incr.Let_syntax in
   let open Vdom in
@@ -105,9 +107,9 @@ let view m ~inject =
     let profile =
       Profile.square
         Param.default
-        ~tank:(Tank.al80 Gas.air)
+        ~tank
         ~depth ~time in
-    let tanks = [Tank.al80 Gas.air] in
+    let tanks = [tank] in
     let gf = (0.8, 0.8) in
     let deco = Buhlmann.deco_procedure Param.default gf tanks profile in
     let full_profile = Profile.append profile deco in

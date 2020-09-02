@@ -16,11 +16,11 @@ module Map : Map.S with type Key.t = t
 module Set : Set.S with type Elt.t = t
 
 val gas : t -> Gas.t
-val start_pressure : t -> pressure
 val volume : t -> volume
+val start_pressure : t -> pressure
 val normal_volume_full : t -> normal_volume
 
-val create : gas:Gas.t -> start_pressure:pressure -> volume:volume -> unit -> t
+val create : gas:Gas.t -> volume:volume -> start_pressure:pressure -> unit -> t
 (** Create a new tank with specified parameters. Tanks created through
     distinct calls to [create] will be distinct. *)
 
@@ -36,4 +36,10 @@ val find_best_bottom : < ppo2_max_bottom : pressure; .. > -> depth:depth -> t li
 
 (** {2 Common tanks} *)
 
-val al80 : Gas.t -> t
+type tank_creator = Gas.t -> unit -> t
+(** A tank creator takes a gas and returns a function that, each time
+    it is called, generates a new distinct tank.
+*)
+
+val al80 : tank_creator
+val double_al80 : tank_creator

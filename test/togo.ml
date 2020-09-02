@@ -5,7 +5,7 @@ let param = Param.default
 let tanks =
   let open Gas in
   let open Tank in
-  [al80 @@ tx 20 30; al80 @@ nx 50; al80 @@ oxy]
+  [double_al80 (tx 20 30) (); al80 (nx 50) (); al80 (oxy) ()]
 
 let togo_profile =
   Profile.square

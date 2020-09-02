@@ -20,7 +20,7 @@ let gases =
   Arg.(value & opt (list gas_conv) [Gas.air] & info ["g"; "gases"] ~doc ~docv:"GASES")
 
 let tanks =
-  Term.(pure (List.map ~f:Tank.al80) $ gases)
+  Term.(pure (List.map ~f:(fun gas -> Tank.al80 gas ())) $ gases)
 
 let gf =
   let doc = "Bühlmann gradient factors." in
