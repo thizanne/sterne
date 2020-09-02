@@ -28,11 +28,11 @@ module Segment = struct
     is_deco segment &&
     segment.final_depth = segment.initial_depth
 
-  let ascent (param : Param.t) ~is_deco ~tank ~initial_depth ~final_depth =
+  let ascent param ~is_deco ~tank ~initial_depth ~final_depth =
     (* Positive ascent speed, m/min *)
     let duration =
       Time.Span.of_min @@
-      (initial_depth - final_depth) / param.ascent_speed in
+      (initial_depth - final_depth) / param#ascent_speed in
     { tank; initial_depth; final_depth; duration; is_deco }
 
   let ascent_deco param ~tank ~initial_depth ~final_depth =
@@ -44,11 +44,11 @@ module Segment = struct
   let is_ascending { initial_depth; final_depth; _ } =
     initial_depth > final_depth
 
-  let descent (param : Param.t) ~tank ~initial_depth ~final_depth =
+  let descent param ~tank ~initial_depth ~final_depth =
     (* Positive descent speed, m/min *)
     let duration =
       Time.Span.of_min @@
-      (final_depth - initial_depth) / param.descent_speed in
+      (final_depth - initial_depth) / param#descent_speed in
     { tank; initial_depth; final_depth; duration; is_deco = false }
 
   let is_descending { initial_depth; final_depth; _ } =
@@ -93,7 +93,7 @@ let final_depth profile =
 let final_tank profile =
   Segment.tank (List.last_exn profile)
 
-let square (param : Param.t) ~tank ~depth ~time =
+let square param ~tank ~depth ~time =
   let descent =
     Segment.descent param ~tank ~initial_depth:0. ~final_depth:depth in
   let bottom =

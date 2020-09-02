@@ -12,7 +12,7 @@ module T = struct
     Id.compare x y
 end
 
-module O = Comparable.Make (T)
+module O = Comparable.Make(T)
 
 include T
 include O
@@ -39,11 +39,11 @@ let find_best ~ppo2_max ~depth available_tanks =
     ~f:(fun tank -> Gas.is_breathable ~ppo2_max ~depth tank.gas)
     (List.sort ~compare:compare_tank_gasses available_tanks)
 
-let find_best_deco (param : Param.t) =
-  find_best ~ppo2_max:param.ppo2_max_deco
+let find_best_deco param =
+  find_best ~ppo2_max:param#ppo2_max_deco
 
-let find_best_bottom (param : Param.t)=
-  find_best ~ppo2_max:param.ppo2_max_bottom
+let find_best_bottom param =
+  find_best ~ppo2_max:param#ppo2_max_bottom
 
 let al80 gas =
   { gas; start_pressure = 207.; volume = Physics.litre 11.1; id = Id.create (); }

@@ -38,10 +38,26 @@ module Segment : sig
   val minute_deco_stop : tank:Tank.t -> depth:depth -> t
   (** A deco stop segment that longs one minute. *)
 
-  val ascent_deco : Param.t -> tank:Tank.t -> initial_depth:depth -> final_depth:depth -> t
-  val ascent_bottom : Param.t -> tank:Tank.t -> initial_depth:depth -> final_depth:depth -> t
+  val ascent_deco :
+    < ascent_speed : other; .. > ->
+    tank:Tank.t ->
+    initial_depth:depth ->
+    final_depth:depth ->
+    t
 
-  val descent : Param.t -> tank:Tank.t -> initial_depth:depth -> final_depth:depth -> t
+  val ascent_bottom :
+    < ascent_speed : other; .. > ->
+    tank:Tank.t ->
+    initial_depth:depth ->
+    final_depth:depth ->
+    t
+
+  val descent :
+    < descent_speed : other; .. > ->
+    tank:Tank.t ->
+    initial_depth:depth ->
+    final_depth:depth ->
+    t
   (** Descent segments are necessarily bottom ones. *)
 end
 
@@ -58,7 +74,12 @@ val add_segment : t -> Segment.t -> t
 
 val of_segment_list : Segment.t list -> t
 
-val square : Param.t -> tank:Tank.t -> depth:depth -> time:time_span -> t
+val square :
+  < descent_speed : other; .. > ->
+  tank:Tank.t ->
+  depth:depth ->
+  time:time_span ->
+  t
 (** A square profile, composed of a descent segment to the specified
     depth and a flat bottom segment. [time] is the total time of the
     profile. The behaviour is unspecified if the needed descent time

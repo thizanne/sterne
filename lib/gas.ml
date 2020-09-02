@@ -124,18 +124,18 @@ let parse input =
   | Error _ -> None
 
 module Best = struct
-
-  let nitrox ?(ppo2=Param.default.ppo2_max_bottom) ~depth () =
+  let nitrox param ~depth () =
+    let ppo2 = param#ppo2_max_bottom in
     let p_amb = Physics.depth_to_pressure depth in
     let o2 = Physics.round_fraction_percent_down (ppo2 / p_amb) in
     nitrox' ~o2
 
-  let trimix ?(ppo2=Param.default.ppo2_max_bottom) ?(end_=30.) ~depth () =
+  let trimix param ?(end_=30.) ~depth () =
+    let ppo2 = param#ppo2_max_bottom in
     let p_amb = Physics.depth_to_pressure depth in
     let p_end = Physics.depth_to_pressure end_ in
     let o2 = Physics.round_fraction_percent_down (ppo2 / p_amb) in
     let o2_and_n2 = p_end / p_amb in
     let he = Physics.round_fraction_percent_up (1. - o2_and_n2) in
     trimix' ~o2 ~he
-
 end
