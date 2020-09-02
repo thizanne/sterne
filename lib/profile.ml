@@ -10,6 +10,9 @@ module Segment = struct
     is_deco : bool;
   } [@@deriving fields]
 
+  let mean_depth { initial_depth; final_depth; _ } =
+    (initial_depth + final_depth) / 2.
+
   let gas { tank; _ } =
     Tank.gas tank
 

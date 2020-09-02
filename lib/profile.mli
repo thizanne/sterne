@@ -7,6 +7,7 @@ module Segment : sig
 
   val initial_depth : t -> depth
   val final_depth : t -> depth
+  val mean_depth : t -> depth
   val duration : t -> time_span
   val tank : t -> Tank.t
   val gas : t -> Gas.t
