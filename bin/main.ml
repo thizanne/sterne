@@ -20,7 +20,11 @@ let gases =
   Arg.(value & opt (list gas_conv) [Gas.air] & info ["g"; "gases"] ~doc ~docv:"GASES")
 
 let tanks =
-  Term.(pure (List.map ~f:(fun gas -> Tank.al80 gas ())) $ gases)
+  let create_tank idx gas =
+    if idx = 0
+    then Tank.double_al80 gas ()
+    else Tank.al80 gas () in
+  Term.(pure (List.mapi ~f:create_tank) $ gases)
 
 let gf =
   let doc = "Bühlmann gradient factors." in
@@ -45,12 +49,35 @@ let time =
 let time =
   Term.(pure Time.Span.of_min $ time)
 
+let pf_tank_result gas_supply formatter tank =
+  let remaining_pressure = Gas_supply.remaining_pressure tank gas_supply in
+  let remaining_normal_volume = Gas_supply.remaining_normal_volume tank gas_supply in
+  Fmt.pf formatter "%.0f bar (%.0f L) in %a L tank of %a"
+    remaining_pressure
+    (Physics.to_litre remaining_normal_volume)
+    (Fmt.float_dfrac 1) (Physics.to_litre @@ Tank.volume tank)
+    Gas.pp (Tank.gas tank)
+
 let main tanks gf display_transitions depth time =
   let param = Param.default in
   let profile = Profile.square param ~tank:(List.hd_exn tanks) ~depth ~time in
   let deco = Buhlmann.deco_procedure param gf tanks profile in
   let full_profile = Profile.append profile deco in
-  Fmt.pr "@[%a@]@." (Profile.pp ~display_transitions) full_profile
+  let gas_supply = Gas_supply.breathe_on_profile' param full_profile in
+  Fmt.set_style_renderer Fmt.stdout `Ansi_tty;
+  let open Fmt in
+  vbox
+    (
+      const (box (Profile.pp ~display_transitions)) full_profile ++
+      cut ++
+      cut ++
+      styled `Bold (const Fmt.string "Remaining gas") ++
+      cut ++
+      const (list @@ pf_tank_result gas_supply) tanks ++
+      cut
+    )
+    stdout ();
+  ()
 
 let () =
   Term.exit @@
