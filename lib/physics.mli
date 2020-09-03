@@ -67,6 +67,7 @@ val round_fraction_percent_up : fraction -> fraction
 (** Round fractions so that they represent an integer percentage *)
 
 val litre : float -> volume
+val to_litre : volume -> float
 (** When it makes more sense to use litres for a volume. *)
 
 val atmospheric_pressure : pressure

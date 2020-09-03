@@ -35,6 +35,9 @@ let round_fraction_percent_down fraction =
 let litre x =
   x / 1000.
 
+let to_litre x =
+  x * 1000.
+
 let atmospheric_pressure = 1. (* 1.013 *)
 
 let water_density = 1. (* 1.03 *)
