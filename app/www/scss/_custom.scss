@@ -1,0 +1,7 @@
+@use "@material/data-table";
+
+#runtime-table {
+    &, * {
+        @include data-table.density(-4);
+    }
+}

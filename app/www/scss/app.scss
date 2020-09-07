@@ -18,3 +18,5 @@
 @use 'material-icons.scss' with (
     $material-icons-font-path: '../fonts/', // With trailing slash
 );
+
+@import 'custom';

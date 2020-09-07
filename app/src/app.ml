@@ -56,15 +56,32 @@ let one_segment_node segment =
     ~f:(fun elem -> Node.td [Attr.class_ "mdc-data-table__cell"] [Node.text elem])
     segment
 
+let header_cell title =
+  let open Vdom in
+  Node.th [
+    Attr.class_ "mdc-data-table__header-cell";
+    Attr.create "role" "columnheader";
+    Attr.create "scope" "col";
+  ] [ Node.text title ]
+
 let runtime_node profile =
   let open Vdom in
   let strings = Profile.to_strings profile in
   Node.div
     [Attr.create "style" "display: flex; justify-content: center"]
     [
-      Node.div [Attr.class_ "mdc-data-table"] [
+      Node.div [Attr.class_ "mdc-data-table"; Attr.id "runtime-table"] [
         Node.div [Attr.class_ "mdc-data-table__table-container"] [
           Node.table [Attr.class_ "mdc-data-table__table"] [
+            Node.thead [] [
+              Node.tr [Attr.class_ "mdc-data-table__header-row"] [
+                header_cell "";
+                header_cell "Depth";
+                header_cell "Duration";
+                header_cell "Runtime";
+                header_cell "Gas";
+              ]
+            ];
             Node.tbody [Attr.class_ "mdc-data-table__content"] @@
             List.map ~f:one_segment_node strings
           ]
