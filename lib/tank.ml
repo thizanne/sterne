@@ -59,3 +59,5 @@ let tank_creator vol_litre start_pressure =
 let al80 = tank_creator 11.1 207.
 
 let double_al80 = tank_creator 22.2 207.
+
+let al_7l = tank_creator 7. 207.

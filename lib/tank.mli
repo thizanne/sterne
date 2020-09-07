@@ -43,3 +43,4 @@ type tank_creator = Gas.t -> unit -> t
 
 val al80 : tank_creator
 val double_al80 : tank_creator
+val al_7l : tank_creator
