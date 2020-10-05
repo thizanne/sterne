@@ -14,12 +14,12 @@ config.xml: config.xml.in
 init_npm:
 	npm install
 
-$(PLUGINS):
+$(PLUGINS): config.xml
 	$(CORDOVA) plugin add $@
 
 init_plugins: $(PLUGINS)
 
-init_platforms:
+init_platforms: config.xml
 	$(CORDOVA) platform add android
 
 init: init_npm init_platforms init_plugins
