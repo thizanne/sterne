@@ -11,13 +11,26 @@
  (name sterne)
  (synopsis "Scuba dive planning software")
  (depends
-  (cmdliner (>= ~~))
-  (core_kernel (>= ~~))
-  (dune (>= ~~))
-  (fmt (>= ~~))
-  (printbox (>= ~~))
-  (tyre (>= ~~))
-  (uucp (>= ~~))
-  (uutf (>= ~~))
-  (ppx_jane (>= ~~))
+  cmdliner
+  core_kernel
+  dune
+  fmt
+  printbox
+  tyre
+  uucp
+  uutf
+  ppx_jane
+  ))
+
+(package
+ (name sterne-app)
+ (synopsis "Scuba dive planning app")
+ (depends
+  sterne
+  core_kernel
+  cordova
+  cordova-plugin-dialogs
+  gen_js_api
+  incr_dom
+  js_of_ocaml
   ))
