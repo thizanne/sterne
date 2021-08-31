@@ -48,7 +48,6 @@ let deco_tanks = [Tank.al_7l (Gas.nx 50) (); Tank.al_7l Gas.oxy ()]
 let tanks = bottom_tank :: deco_tanks
 let gas_supply_full = Gas_supply.full_tanks tanks
 
-
 let one_segment_node segment =
   let open Vdom in
   Node.tr [Attr.class_ "mdc-data-table__row"] @@
