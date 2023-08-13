@@ -3,11 +3,11 @@
  (public_name sterne)
  (package sterne)
  (libraries
-  core_kernel
+  core
   cmdliner
   fmt
   sterne
   )
  (flags
-  (:standard -open Core_kernel -open Sterne))
+  (:standard -open Core -open Sterne))
  )

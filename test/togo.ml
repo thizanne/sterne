@@ -12,7 +12,7 @@ let togo_profile =
     param
     ~tank:(List.hd_exn tanks)
     ~depth:55.
-    ~time:(Time.Span.of_min 25.)
+    ~time:(Time_float.Span.of_min 25.)
 
 let deco =
   Buhlmann.deco_procedure param (0.3, 0.8) tanks togo_profile

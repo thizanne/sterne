@@ -34,7 +34,7 @@ module Segment = struct
   let ascent param ~is_deco ~tank ~initial_depth ~final_depth =
     (* Positive ascent speed, m/min *)
     let duration =
-      Time.Span.of_min @@
+      Time_float.Span.of_min @@
       (initial_depth - final_depth) / param#ascent_speed in
     { tank; initial_depth; final_depth; duration; is_deco }
 
@@ -50,7 +50,7 @@ module Segment = struct
   let descent param ~tank ~initial_depth ~final_depth =
     (* Positive descent speed, m/min *)
     let duration =
-      Time.Span.of_min @@
+      Time_float.Span.of_min @@
       (final_depth - initial_depth) / param#descent_speed in
     { tank; initial_depth; final_depth; duration; is_deco = false }
 
@@ -70,7 +70,7 @@ module Segment = struct
     initial_depth = final_depth
 
   let minute_deco_stop ~tank ~depth =
-    flat_deco ~tank ~depth ~duration:Time.Span.minute
+    flat_deco ~tank ~depth ~duration:Time_float.Span.minute
 end
 
 type t = Segment.t list
@@ -100,7 +100,7 @@ let square param ~tank ~depth ~time =
   let descent =
     Segment.descent param ~tank ~initial_depth:0. ~final_depth:depth in
   let bottom =
-    Segment.flat_bottom ~tank ~depth ~duration:Time.Span.(time - descent.duration) in
+    Segment.flat_bottom ~tank ~depth ~duration:Time_float.Span.(time - descent.duration) in
   [descent; bottom]
 
 let segment_infos ~display_transitions ~must_pp_gas start_time segment =
@@ -115,7 +115,7 @@ let segment_infos ~display_transitions ~must_pp_gas start_time segment =
       direction;
       Format.asprintf "%g m" segment.final_depth;
       Format.asprintf "%a" Physics.pp_time_span segment.duration;
-      Format.asprintf "%a" Physics.pp_time_span Time.Span.(start_time + segment.duration);
+      Format.asprintf "%a" Physics.pp_time_span Time_float.Span.(start_time + segment.duration);
       if must_pp_gas
       then Format.asprintf "%a" Gas.pp (Segment.gas segment)
       else "";
@@ -141,7 +141,7 @@ let to_strings ?(display_transitions=false) profile =
       (* All segment boxes but the first one *)
       List.folding_map
         ~f:(fun (run_time, previous_gas) segment ->
-            (Time.Span.(run_time + Segment.duration segment), Segment.gas segment),
+            (Time_float.Span.(run_time + Segment.duration segment), Segment.gas segment),
             segment_infos
               ~must_pp_gas:(not Gas.(Segment.gas segment = previous_gas))
               ~display_transitions
@@ -150,7 +150,7 @@ let to_strings ?(display_transitions=false) profile =
         ~init:(Segment.duration initial_segment, Segment.gas initial_segment)
         segments in
     let box =
-      segment_infos ~display_transitions ~must_pp_gas:true Time.Span.zero initial_segment ::
+      segment_infos ~display_transitions ~must_pp_gas:true Time_float.Span.zero initial_segment ::
       tail_box_lines in
     List.filter_opt box
 

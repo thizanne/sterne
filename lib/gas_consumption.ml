@@ -9,7 +9,7 @@ let liters_per_minute sac =
 
 let breathe_at_depth sac ambient_pressure time_span =
   let rmv = sac * ambient_pressure in
-  let seconds = Time.Span.to_sec time_span in
+  let seconds = Time_float.Span.to_sec time_span in
   rmv * seconds
 
 let breathe_on_segment sac segment =

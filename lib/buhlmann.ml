@@ -69,7 +69,7 @@ let compartments =
     (* 16 *) 240.03, 0.5119, 0.9267;
   ] in
   let build_values (half_life, a, b) =
-    { half_life = Time.Span.of_min half_life; a; b } in
+    { half_life = Time_float.Span.of_min half_life; a; b } in
   List.map2_exn
     ~f:(fun n2_values he_values -> {
           n2 = build_values n2_values ;
@@ -95,9 +95,9 @@ let segment_element_loading element (segment : Profile.Segment.t) p0 { half_life
   let module S = Profile.Segment in
   let initial_pressure = Physics.depth_to_pressure @@ S.initial_depth segment in
   let final_pressure = Physics.depth_to_pressure @@ S.final_depth segment in
-  let t = Time.Span.to_min @@ S.duration segment in
+  let t = Time_float.Span.to_min @@ S.duration segment in
   let gas = S.gas segment in
-  let half_life = Time.Span.to_min half_life in
+  let half_life = Time_float.Span.to_min half_life in
   let pressure_variation_rate = (final_pressure - initial_pressure) / t in
   let r = pressure_variation_rate * Gas.fraction element gas in
   let pi_0 = alveolar_pressure element gas initial_pressure in
@@ -212,7 +212,7 @@ let rec stop_time gf tank stop_depth next_stop_depth saturation =
      acceptable at the next stop. Note: the ascent segment to the next
      stop is not considered to compute this saturation. *)
   if is_admissible_depth gf next_stop_depth saturation
-  then Time.Span.zero, saturation
+  then Time_float.Span.zero, saturation
   else
     let minute_segment =
       Profile.Segment.minute_deco_stop ~tank ~depth:stop_depth in
@@ -222,7 +222,7 @@ let rec stop_time gf tank stop_depth next_stop_depth saturation =
       segment_saturation saturation minute_segment in
     let remaining_time, saturation =
       stop_time gf tank stop_depth next_stop_depth minute_saturation in
-    Time.Span.(one_minute + remaining_time), saturation
+    Time_float.Span.(one_minute + remaining_time), saturation
 
 let deco param (gf_low, gf_high) tanks depth bottom_tank saturation =
   (* Returns the full deco profile from given current depth,

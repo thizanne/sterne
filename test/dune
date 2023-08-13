@@ -1,9 +1,9 @@
 (test
  (name togo)
  (libraries
-  core_kernel
+  core
   sterne
   )
  (flags
-  (:standard -open Core_kernel))
+  (:standard -open Core))
  )

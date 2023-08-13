@@ -7,7 +7,7 @@ module Quantity = struct
   type depth = float [@@deriving sexp,compare,equal]
   type pressure = float [@@deriving sexp,compare,equal]
   type tension = pressure [@@deriving sexp,compare,equal]
-  type time_span = Time.Span.t [@@deriving sexp,compare,equal]
+  type time_span = Time_float.Span.t [@@deriving sexp,compare,equal]
   type volume = float [@@deriving sexp,compare,equal]
   type normal_volume = float [@@deriving sexp,compare,equal]
   type dimensionless = float [@@deriving sexp,compare,equal]
@@ -69,14 +69,14 @@ let volume_of_gas ~normal_volume ~pressure =
 
 let pp_time_span ppf time_span =
   Fmt.string ppf @@
-    if Time.Span.(time_span <. minute)
+    if Time_float.Span.(time_span <. minute)
     then
-      Time.Span.to_string_hum
+      Time_float.Span.to_string_hum
         time_span
         ~decimals:0
         ~unit_of_time:Unit_of_time.Second
     else
-      Time.Span.to_string_hum
+      Time_float.Span.to_string_hum
         time_span
         ~decimals:0
         ~unit_of_time:Unit_of_time.Minute ^

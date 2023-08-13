@@ -2,7 +2,7 @@
  (name sterne)
  (public_name sterne)
  (libraries
-  core_kernel
+  core
   fmt
   printbox.unicode
   cmdliner
@@ -10,5 +10,5 @@
   )
  (preprocess (pps ppx_jane))
  (flags
-  (:standard -open Core_kernel))
+  (:standard -open Core))
  )

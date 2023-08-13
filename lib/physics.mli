@@ -38,7 +38,7 @@ module Quantity : sig
 
   type tension = pressure [@@deriving sexp,compare,equal]
 
-  type time_span = Time.Span.t [@@deriving sexp,compare,equal]
+  type time_span = Time_float.Span.t [@@deriving sexp,compare,equal]
 
   type volume = float [@@deriving sexp,compare,equal]
   (** Expressed in cubic meters. *)

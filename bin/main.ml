@@ -7,7 +7,7 @@ let info =
     `P "Most probably. Use at your own risk. Do not rely on this \
         program alone.";
   ] in
-  Term.info "sterne" ~version:"0.1.0-alpha" ~doc ~exits:Term.default_exits ~man
+  Cmd.info "sterne" ~version:"0.1.0-alpha" ~doc ~exits:Cmd.Exit.defaults ~man
 
 let gases =
   let parser =
@@ -24,7 +24,7 @@ let tanks =
     if idx = 0
     then Tank.double_al80 gas ()
     else Tank.al80 gas () in
-  Term.(pure (List.mapi ~f:create_tank) $ gases)
+  Term.(const (List.mapi ~f:create_tank) $ gases)
 
 let gf =
   let doc = "Bühlmann gradient factors." in
@@ -32,7 +32,7 @@ let gf =
 
 let gf =
   let of_percent x = float_of_int x /. 100. in
-  Term.(pure (fun (low, high) -> of_percent low, of_percent high) $ gf)
+  Term.(const (fun (low, high) -> of_percent low, of_percent high) $ gf)
 
 let display_transitions =
   let doc = "Display deco transitions." in
@@ -47,7 +47,7 @@ let time =
   Arg.(required & pos 1 (some float) None & info [] ~docv:"TIME" ~doc)
 
 let time =
-  Term.(pure Time.Span.of_min $ time)
+  Term.(const Time_float.Span.of_min $ time)
 
 let pf_tank_result gas_supply formatter tank =
   let remaining_pressure = Gas_supply.remaining_pressure tank gas_supply in
@@ -80,5 +80,6 @@ let main tanks gf display_transitions depth time =
   ()
 
 let () =
-  Term.exit @@
-  Term.eval (Term.(pure main $ tanks $ gf $ display_transitions $ depth $ time), info)
+  exit @@
+  Cmd.eval @@
+  Cmd.v info Term.(const main $ tanks $ gf $ display_transitions $ depth $ time)

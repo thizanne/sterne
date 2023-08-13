@@ -5,13 +5,13 @@
   gen_js_api ;; Must come before cordova deps
   cordova
   cordova-plugin-dialogs
-  core_kernel
+  core
   sterne
   incr_dom
   js_of_ocaml
   )
  (preprocess (pps js_of_ocaml-ppx ppx_jane))
- (flags (:standard -open Core_kernel))
+ (flags (:standard -open Core))
  (promote (into build) (until-clean))
  )
 

@@ -12,7 +12,7 @@
  (synopsis "Scuba dive planning software")
  (depends
   cmdliner
-  core_kernel
+  core
   dune
   fmt
   printbox
@@ -27,7 +27,7 @@
  (synopsis "Scuba dive planning app")
  (depends
   sterne
-  core_kernel
+  core
   cordova
   cordova-plugin-dialogs
   gen_js_api

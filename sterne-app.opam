@@ -8,7 +8,7 @@ bug-reports: "https://github.com/thizanne/sterne/issues"
 depends: [
   "dune" {>= "2.5"}
   "sterne"
-  "core_kernel"
+  "core"
   "cordova"
   "cordova-plugin-dialogs"
   "gen_js_api"
