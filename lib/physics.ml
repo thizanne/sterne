@@ -38,12 +38,17 @@ let litre x =
 let to_litre x =
   x * 1000.
 
-let atmospheric_pressure = 1. (* 1.013 *)
+let atmospheric_pressure = 1.013
 
-let water_density = 1. (* 1.03 *)
+let water_density = 1.03
+
+let standard_gravity =
+  (* https://en.wikipedia.org/wiki/Standard_gravity *)
+  9.80665
 
 let bar_per_meter =
-  water_density / 10.
+  (* ρ.g.h [in bar] = 1000.d.g.h / 100_000 *)
+  water_density * standard_gravity / 100.
 
 let depth_to_pressure depth =
   atmospheric_pressure + (depth * bar_per_meter)
