@@ -11,14 +11,13 @@
     "author": "Thibault Suzanne",
     "license": "UNLICENSED",
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^5.14.0",
-        "cordova": "^10.0.0",
-        "cordova-android": "^9.0.0",
-        "cordova-ios": "^6.1.0",
+        "@fortawesome/fontawesome-free": "^6.4.2",
+        "cordova": "^12.0.0",
+        "cordova-android": "^12.0.0",
         "cordova-plugin-dialogs": "^2.0.2",
         "cordova-plugin-whitelist": "^1.3.4",
-        "material-components-web": "^7.0.0",
-        "material-icons": "^0.3.1"
+        "material-components-web": "^14.0.0",
+        "material-icons": "^1.13.9"
     },
     "cordova": {
         "plugins": {
@@ -26,31 +25,30 @@
             "cordova-plugin-dialogs": {}
         },
         "platforms": [
-            "ios",
             "android"
         ]
     },
     "devDependencies": {
-        "@babel/core": "^7.11.4",
-        "@babel/preset-env": "^7.11.0",
-        "@babel/register": "^7.10.5",
-        "babel-loader": "^8.1.0",
-        "fibers": "^5.0.0",
+        "@babel/core": "^7.22.10",
+        "@babel/preset-env": "^7.22.10",
+        "@babel/register": "^7.22.5",
+        "babel-loader": "^9.1.3",
+        "cordova-android": "^12.0.0",
         "fs": "0.0.1-security",
         "gulp": "^4.0.2",
         "gulp-babel": "^8.0.0",
         "gulp-cli": "^2.3.0",
         "gulp-if": "^3.0.0",
-        "gulp-load-plugins": "^2.0.4",
-        "gulp-sass": "^4.1.0",
-        "gulp-sourcemaps": "^2.6.5",
+        "gulp-load-plugins": "^2.0.8",
+        "gulp-sass": "^5.1.0",
+        "gulp-sourcemaps": "^3.0.0",
         "gulp-uglify": "^3.0.2",
-        "js-yaml": "^3.14.0",
-        "rimraf": "^3.0.2",
-        "sass": "^1.26.10",
+        "js-yaml": "^4.1.0",
+        "rimraf": "^5.0.1",
+        "sass": "^1.65.1",
         "vinyl-named": "^1.1.0",
-        "webpack": "^4.44.1",
-        "webpack-stream": "^5.2.1",
-        "yargs": "^15.4.1"
+        "webpack": "^5.88.2",
+        "webpack-stream": "^7.0.0",
+        "yargs": "^17.7.2"
     }
 }

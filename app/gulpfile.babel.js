@@ -1,6 +1,5 @@
 'use strict';
 
-import fibers from 'fibers';
 import fs from 'fs';
 import gulp from 'gulp';
 import named from 'vinyl-named';
@@ -43,12 +42,13 @@ const assets =
       );
 
 // Compile Sass into CSS
-$.sass.compiler = require('sass'); // Use dart sass
+
+const sassCompiler = require('gulp-sass')(require('sass')); // Use dart sass
 
 function sass() {
     return gulp.src(PATHS.sass_entries)
-        .pipe($.sass({includePaths: PATHS.sass_libs, fiber: fibers})
-              .on('error', $.sass.logError))
+        .pipe(sassCompiler({includePaths: PATHS.sass_libs})
+              .on('error', sassCompiler.logError))
         .pipe(gulp.dest(PATHS.dist + '/css'))
 }
 

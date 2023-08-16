@@ -20,10 +20,5 @@
     <allow-intent href="market:*" />
     <preference name="loadUrlTimeoutValue" value="700000" />
   </platform>
-  <platform name="ios">
-    <allow-intent href="itms:*" />
-    <allow-intent href="itms-apps:*" />
-  </platform>
-  <engine name="ios" spec="^4.5.5" />
   <engine name="android" spec="^7.1.4" />
 </widget>
