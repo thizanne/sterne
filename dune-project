@@ -15,7 +15,7 @@
   core
   dune
   fmt
-  printbox
+  printbox-text
   tyre
   uucp
   uutf

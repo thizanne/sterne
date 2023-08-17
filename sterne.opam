@@ -6,7 +6,15 @@ authors: ["Thibault Suzanne"]
 homepage: "https://github.com/thizanne/sterne"
 bug-reports: "https://github.com/thizanne/sterne/issues"
 depends: [
-  "cmdliner" "core" "dune" "fmt" "printbox" "tyre" "uucp" "uutf" "ppx_jane"
+  "cmdliner"
+  "core"
+  "dune"
+  "fmt"
+  "printbox-text"
+  "tyre"
+  "uucp"
+  "uutf"
+  "ppx_jane"
 ]
 build: [
   ["dune" "subst"] {pinned}
