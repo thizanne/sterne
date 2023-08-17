@@ -21,31 +21,23 @@ val fraction : element -> t -> fraction
 (** {2 Create gases and basic functions } *)
 
 val air : t
-
 val oxy : t
-
 val nitrox : o2:percentage -> t
 val nitrox' : o2:fraction -> t
-
 val nx : percentage_int -> t
-
 val trimix : o2:percentage -> he:percentage -> t
 val trimix' : o2:fraction -> he:fraction -> t
 
 val tx : percentage_int -> percentage_int -> t
 (** [tx o2 he] *)
 
-val tx' : (percentage_int * percentage_int) -> t
+val tx' : percentage_int * percentage_int -> t
 (** [tx' (o2, he)] *)
 
 val heliair : o2:percentage -> t
-
 val is_air : t -> bool
-
 val is_oxy : t -> bool
-
 val is_nitrox : t -> bool
-
 val partial_pressure : element -> t -> depth -> pressure
 
 (** {3 Diving related functions } *)
@@ -70,6 +62,8 @@ val parse : string -> t option
 (** Parses [air], [oxy], [32] or [18/45]. *)
 
 module Best : sig
-  val nitrox : < ppo2_max_bottom:pressure; .. > -> depth:depth -> unit -> t
-  val trimix : < ppo2_max_bottom:pressure; .. > -> ?end_:depth -> depth:depth -> unit -> t
+  val nitrox : < ppo2_max_bottom : pressure ; .. > -> depth:depth -> unit -> t
+
+  val trimix :
+    < ppo2_max_bottom : pressure ; .. > -> ?end_:depth -> depth:depth -> unit -> t
 end

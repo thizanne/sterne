@@ -1,7 +1,7 @@
 open Physics.Quantity
 
-(** Surface air consumption rate *)
 type sac
+(** Surface air consumption rate *)
 
 val liters_per_minute : float -> sac
 (** [liters_per_minute 20.] is the SAC of a diver breathing 20 normal

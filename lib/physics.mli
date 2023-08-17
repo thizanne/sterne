@@ -2,7 +2,6 @@
 
 (** Physical quantities as types. *)
 module Quantity : sig
-
   (** The goal of this module is to define physical quantities as
       type, to ease their readability. All these quantities are aliases
       to existing types, mostly [float] and [int]: no check is
@@ -20,53 +19,52 @@ module Quantity : sig
       easier definition of types implying quantities.
   *)
 
-  type fraction = float [@@deriving sexp,compare,equal]
+  type fraction = float [@@deriving sexp, compare, equal]
   (** A fraction is between [0.] and [1.], both included. *)
 
-  type percentage = float [@@deriving sexp,compare,equal]
+  type percentage = float [@@deriving sexp, compare, equal]
   (** A percentage is between [0.] and [100.], both included. *)
 
-  type percentage_int = int [@@deriving sexp,compare,equal]
+  type percentage_int = int [@@deriving sexp, compare, equal]
   (** Sometimes it may be easier to manipulate integers. Between [0]
       and [100]. *)
 
-  type depth = float [@@deriving sexp,compare,equal]
+  type depth = float [@@deriving sexp, compare, equal]
   (** Expressed in meters. *)
 
-  type pressure = float [@@deriving sexp,compare,equal]
+  type pressure = float [@@deriving sexp, compare, equal]
   (** Expressed in bar. *)
 
-  type tension = pressure [@@deriving sexp,compare,equal]
+  type tension = pressure [@@deriving sexp, compare, equal]
+  type time_span = Time_float.Span.t [@@deriving sexp, compare, equal]
 
-  type time_span = Time_float.Span.t [@@deriving sexp,compare,equal]
-
-  type volume = float [@@deriving sexp,compare,equal]
+  type volume = float [@@deriving sexp, compare, equal]
   (** Expressed in cubic meters. *)
 
-  type normal_volume = float [@@deriving sexp,compare,equal]
+  type normal_volume = float [@@deriving sexp, compare, equal]
   (** Has the dimension of [pressure × volume]. Used to describe
       quantities of gas by the volume they would have under a pressure of 1 bar.
   *)
 
-  type dimensionless = float [@@deriving sexp,compare,equal]
+  type dimensionless = float [@@deriving sexp, compare, equal]
   (** For quantities with no dimension nor invariant *)
 
-  type other = float [@@deriving sexp,compare,equal]
+  type other = float [@@deriving sexp, compare, equal]
   (** For quantities (eg. bar / m) not expressed by other types
       (typically too seldom used to warrant a dedicated name) *)
-
 end
 
 open Quantity
 
 val percent_to_fraction : percentage -> fraction
 val fraction_to_percent : fraction -> percentage
-
 val round_fraction_percent_down : fraction -> fraction
+
 val round_fraction_percent_up : fraction -> fraction
 (** Round fractions so that they represent an integer percentage *)
 
 val litre : float -> volume
+
 val to_litre : volume -> float
 (** When it makes more sense to use litres for a volume. *)
 

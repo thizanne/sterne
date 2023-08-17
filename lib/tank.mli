@@ -9,8 +9,7 @@ module O : sig
   val ( <> ) : t -> t -> bool
 end
 
-include (module type of O)
-
+include module type of O
 include Comparator.S with type t := t
 module Map : Map.S with type Key.t = t
 module Set : Set.S with type Elt.t = t
@@ -31,8 +30,8 @@ val find_best : ppo2_max:pressure -> depth:depth -> t list -> t
    depth, without exceeding maximal ppo2. If no tank from the list can
    be used at that depth, behaviour is unspecified. *)
 
-val find_best_deco : < ppo2_max_deco : pressure; .. > -> depth:depth -> t list -> t
-val find_best_bottom : < ppo2_max_bottom : pressure; .. > -> depth:depth -> t list -> t
+val find_best_deco : < ppo2_max_deco : pressure ; .. > -> depth:depth -> t list -> t
+val find_best_bottom : < ppo2_max_bottom : pressure ; .. > -> depth:depth -> t list -> t
 
 (** {2 Common tanks} *)
 

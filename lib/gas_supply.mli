@@ -12,6 +12,6 @@ val remaining_normal_volume : Tank.t -> t -> normal_volume
 val remaining_pressure : Tank.t -> t -> pressure
 (** Undefined behaviour if the tank isn't part of the supply *)
 
-val breathe_on_segment : < sac:Gas_consumption.sac; .. > -> Profile.Segment.t -> t -> t
-val breathe_on_profile : < sac:Gas_consumption.sac; .. > -> Profile.t -> t -> t
-val breathe_on_profile' : < sac:Gas_consumption.sac; .. > -> Profile.t -> t
+val breathe_on_segment : < sac : Gas_consumption.sac ; .. > -> Profile.Segment.t -> t -> t
+val breathe_on_profile : < sac : Gas_consumption.sac ; .. > -> Profile.t -> t -> t
+val breathe_on_profile' : < sac : Gas_consumption.sac ; .. > -> Profile.t -> t

@@ -1,0 +1,10 @@
+profile = default
+version = 0.26.0
+
+margin = 90
+
+break-fun-decl = smart
+break-infix = wrap-or-vertical
+type-decl = sparse
+wrap-comments = true
+wrap-fun-args = false

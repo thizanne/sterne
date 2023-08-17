@@ -8,12 +8,14 @@
   core
   sterne
   incr_dom
-  js_of_ocaml
-  )
- (preprocess (pps js_of_ocaml-ppx ppx_jane))
- (flags (:standard -open Core))
- (promote (into build) (until-clean))
- )
+  js_of_ocaml)
+ (preprocess
+  (pps js_of_ocaml-ppx ppx_jane))
+ (flags
+  (:standard -open Core))
+ (promote
+  (into build)
+  (until-clean)))
 
 (alias
  (name default)

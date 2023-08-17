@@ -12,6 +12,7 @@ depends: [
   "merlin"
   "ocp-indent"
   "tuareg"
+  "ocamlformat"
 ]
 build: []
 install: []

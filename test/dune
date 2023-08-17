@@ -1,9 +1,5 @@
 (test
  (name togo)
- (libraries
-  core
-  sterne
-  )
+ (libraries core sterne)
  (flags
-  (:standard -open Core))
- )
+  (:standard -open Core)))

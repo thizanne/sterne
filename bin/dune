@@ -2,12 +2,6 @@
  (name main)
  (public_name sterne)
  (package sterne)
- (libraries
-  core
-  cmdliner
-  fmt
-  sterne
-  )
+ (libraries core cmdliner fmt sterne)
  (flags
-  (:standard -open Core -open Sterne))
- )
+  (:standard -open Core -open Sterne)))
