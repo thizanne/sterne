@@ -27,14 +27,14 @@ init: init_npm init_platforms init_plugins
 distclean:
 	rm -fr node_modules platforms plugins
 
-prebuild:
+prebuild: config.xml
 	$(DUNE) build
 	$(GULP) build
 
-build_android: config.xml prebuild
+build_android: prebuild
 	$(CORDOVA) build android
 
-run_android: build_android
+run_android: prebuild
 	$(CORDOVA) run android
 
 clean:
