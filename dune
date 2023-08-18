@@ -1,0 +1,7 @@
+(env
+ (dev
+  (flags
+   (:standard -open Core)))
+ (release
+  (flags
+   (:standard -open Core))))

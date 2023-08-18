@@ -3,6 +3,4 @@
  (public_name sterne)
  (libraries core fmt printbox-text cmdliner tyre)
  (preprocess
-  (pps ppx_jane))
- (flags
-  (:standard -open Core)))
+  (pps ppx_jane)))
