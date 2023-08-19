@@ -60,13 +60,13 @@ let is_breathable ?(ppo2_max = 1.6) ~depth gas = partial_pressure O2 gas depth <
 
 let pp ppf gas =
   let open Fmt in
-  if is_oxy gas then string ppf "Oxy"
+  if is_oxy gas then string ppf "O2"
   else if is_air gas then string ppf "Air"
-  else if is_nitrox gas then pf ppf "Nx %.0f" (Physics.fraction_to_percent gas.o2)
+  else if is_nitrox gas then pf ppf "%.0f%%" (Physics.fraction_to_percent gas.o2)
   else
     pf
       ppf
-      "Tx %.0f/%.0f"
+      "%.0f/%.0f"
       (Physics.fraction_to_percent gas.o2)
       (Physics.fraction_to_percent gas.he)
 
