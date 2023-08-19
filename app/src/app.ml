@@ -80,7 +80,7 @@ let runtime_node profile =
                         [
                           header_cell "";
                           header_cell "Depth";
-                          header_cell "Duration";
+                          header_cell "Stop";
                           header_cell "Runtime";
                           header_cell "Gas";
                         ];

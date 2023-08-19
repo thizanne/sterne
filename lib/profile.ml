@@ -135,7 +135,7 @@ let to_strings ?(display_transitions = false) profile =
 let pp ?(display_transitions = false) ppf profile =
   let infos = to_strings ~display_transitions profile in
   let box_l = List.map ~f:(List.map ~f:PrintBox.text) infos in
-  let first_line = [ ""; "Depth"; "Duration"; "Runtime"; "Gas" ] in
+  let first_line = [ ""; "Depth"; "Stop"; "Runtime"; "Gas" ] in
   let bold = PrintBox.text_with_style PrintBox.Style.bold in
   let first_line = List.map ~f:bold first_line in
   let box_l = first_line :: box_l in
