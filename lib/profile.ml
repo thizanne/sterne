@@ -85,13 +85,12 @@ let segment_infos ~display_transitions ~must_pp_gas start_time segment =
   let box =
     [
       direction;
-      Format.asprintf "%g m" segment.final_depth;
-      Format.asprintf "%a" Physics.pp_time_span segment.duration;
-      Format.asprintf
-        "%a"
+      Fmt.to_to_string Physics.pp_depth segment.final_depth;
+      Fmt.to_to_string Physics.pp_time_span segment.duration;
+      Fmt.to_to_string
         Physics.pp_time_span
         Time_float.Span.(start_time + segment.duration);
-      (if must_pp_gas then Format.asprintf "%a" Gas.pp (Segment.gas segment) else "");
+      (if must_pp_gas then Fmt.to_to_string Gas.pp (Segment.gas segment) else "");
     ]
   in
   if

@@ -76,6 +76,10 @@ let normal_volume_of_gas ~pressure ~volume =
 let pressure_of_gas ~volume ~normal_volume = normal_volume / volume
 let volume_of_gas ~normal_volume ~pressure = normal_volume / pressure
 
+(* Pretty-printers *)
+
+let pp_depth fmt depth = Fmt.pf fmt "%g m" depth
+
 let pp_time_span ppf time_span =
   Fmt.string ppf
   @@

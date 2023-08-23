@@ -61,6 +61,7 @@ include module type of Quantity
 module O : module type of Float.O
 include module type of O
 
+val pp_depth : depth Fmt.t
 val percent_to_fraction : percentage -> fraction
 val fraction_to_percent : fraction -> percentage
 val round_fraction_percent_down : fraction -> fraction
