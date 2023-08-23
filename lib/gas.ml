@@ -1,22 +1,16 @@
-open Float.O
+open Physics.O
 
 type t = {
   o2 : float;
   he : float;
   n2 : float;
 }
-[@@deriving sexp]
+[@@deriving sexp, equal]
 
 type element =
   | O2
   | He
   | N2
-
-let equal gas gas' =
-  let open Int.O in
-  Float.robustly_compare gas.o2 gas'.o2 = 0
-  && Float.robustly_compare gas.n2 gas'.n2 = 0
-  && Float.robustly_compare gas.he gas'.he = 0
 
 let ( = ) gas gas' = equal gas gas'
 let ( <> ) gas gas' = not (gas = gas')

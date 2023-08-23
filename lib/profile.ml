@@ -1,4 +1,4 @@
-open Float.O
+open Physics.O
 open Physics.Quantity
 
 module Segment = struct

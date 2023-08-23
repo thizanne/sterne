@@ -1,4 +1,4 @@
-open Float.O
+open Physics.O
 open Physics.Quantity
 
 (********************)
@@ -10,7 +10,7 @@ type tension = pressure
 type compartment_values = {
   half_life : time_span;
   a : tension; (* origin m-value *)
-  b : float; (* inverse slope *)
+  b : quantity; (* inverse slope *)
 }
 
 type compartment = {

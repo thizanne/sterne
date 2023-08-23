@@ -31,7 +31,7 @@ let find_best ~ppo2_max ~depth available_tanks =
        oxygen is better, then more helium is better. *)
     Int.neg
     @@ List.compare
-         Float.compare
+         Physics.compare
          [ Gas.fraction Gas.O2 gas1; Gas.fraction Gas.He gas1 ]
          [ Gas.fraction Gas.O2 gas2; Gas.fraction Gas.He gas2 ]
   in

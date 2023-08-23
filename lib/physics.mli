@@ -19,42 +19,47 @@ module Quantity : sig
       easier definition of types implying quantities.
   *)
 
-  type fraction = float [@@deriving sexp, compare, equal]
+  type quantity = float [@@deriving sexp, compare, equal]
+  (** Generic type for quantities (eg. bar / m) not expressed by other
+      types (typically too seldom used to warrant a dedicated name) *)
+
+  type fraction = quantity [@@deriving sexp, compare, equal]
   (** A fraction is between [0.] and [1.], both included. *)
 
-  type percentage = float [@@deriving sexp, compare, equal]
+  type percentage = quantity [@@deriving sexp, compare, equal]
   (** A percentage is between [0.] and [100.], both included. *)
 
   type percentage_int = int [@@deriving sexp, compare, equal]
   (** Sometimes it may be easier to manipulate integers. Between [0]
       and [100]. *)
 
-  type depth = float [@@deriving sexp, compare, equal]
+  type depth = quantity [@@deriving sexp, compare, equal]
   (** Expressed in meters. *)
 
-  type pressure = float [@@deriving sexp, compare, equal]
+  type pressure = quantity [@@deriving sexp, compare, equal]
   (** Expressed in bar. *)
 
   type tension = pressure [@@deriving sexp, compare, equal]
   type time_span = Time_float.Span.t [@@deriving sexp, compare, equal]
 
-  type volume = float [@@deriving sexp, compare, equal]
+  type volume = quantity [@@deriving sexp, compare, equal]
   (** Expressed in cubic meters. *)
 
-  type normal_volume = float [@@deriving sexp, compare, equal]
+  type normal_volume = quantity [@@deriving sexp, compare, equal]
   (** Has the dimension of [pressure × volume]. Used to describe
       quantities of gas by the volume they would have under a pressure of 1 bar.
   *)
 
-  type dimensionless = float [@@deriving sexp, compare, equal]
+  type dimensionless = quantity [@@deriving sexp, compare, equal]
   (** For quantities with no dimension nor invariant *)
 
-  type other = float [@@deriving sexp, compare, equal]
-  (** For quantities (eg. bar / m) not expressed by other types
-      (typically too seldom used to warrant a dedicated name) *)
+  val compare : quantity -> quantity -> int
+  (** Uses robust comparison *)
 end
 
-open Quantity
+include module type of Quantity
+module O : module type of Float.O
+include module type of O
 
 val percent_to_fraction : percentage -> fraction
 val fraction_to_percent : fraction -> percentage
@@ -71,7 +76,7 @@ val to_litre : volume -> float
 val atmospheric_pressure : pressure
 val water_density : dimensionless
 
-val bar_per_meter : other
+val bar_per_meter : quantity
 (** Pressure induced by one meter of water. *)
 
 val depth_to_pressure : depth -> pressure

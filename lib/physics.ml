@@ -1,18 +1,42 @@
-open Float.O
+module O = struct
+  include Float.O
+  include Float.Robustly_comparable
+
+  let ( >= ) = Float.Robustly_comparable.( >=. )
+  let ( <= ) = Float.Robustly_comparable.( <=. )
+  let ( = ) = Float.Robustly_comparable.( =. )
+  let ( < ) = Float.Robustly_comparable.( <. )
+  let ( > ) = Float.Robustly_comparable.( >. )
+  let ( <> ) = Float.Robustly_comparable.( <>. )
+  let equal = ( = )
+end
+
+include O
 
 module Quantity = struct
-  type fraction = float [@@deriving sexp, compare, equal]
-  type percentage = float [@@deriving sexp, compare, equal]
+  type quantity = float [@@deriving sexp]
+
+  let compare = robustly_compare
+  let compare_quantity = robustly_compare
+  let equal_quantity = equal
+
+  type fraction = quantity [@@deriving sexp, compare, equal]
+  type percentage = quantity [@@deriving sexp, compare, equal]
   type percentage_int = int [@@deriving sexp, compare, equal]
-  type depth = float [@@deriving sexp, compare, equal]
-  type pressure = float [@@deriving sexp, compare, equal]
+  type depth = quantity [@@deriving sexp, compare, equal]
+  type pressure = quantity [@@deriving sexp, compare, equal]
   type tension = pressure [@@deriving sexp, compare, equal]
-  type time_span = Time_float.Span.t [@@deriving sexp, compare, equal]
-  type volume = float [@@deriving sexp, compare, equal]
-  type normal_volume = float [@@deriving sexp, compare, equal]
-  type dimensionless = float [@@deriving sexp, compare, equal]
-  type other = float [@@deriving sexp, compare, equal]
+  type time_span = Time_float.Span.t [@@deriving sexp]
+
+  let compare_time_span = Time_float.Span.robustly_compare
+  let equal_time_span = Time_float.Span.( =. )
+
+  type volume = quantity [@@deriving sexp, compare, equal]
+  type normal_volume = quantity [@@deriving sexp, compare, equal]
+  type dimensionless = quantity [@@deriving sexp, compare, equal]
 end
+
+include Quantity
 
 let percent_to_fraction percentage = percentage / 100.
 let fraction_to_percent frac = frac * 100.
