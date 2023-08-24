@@ -27,7 +27,7 @@ module Segment = struct
   let ascent param ~is_deco ~tank ~initial_depth ~final_depth =
     (* Positive ascent speed, m/min *)
     let duration =
-      Time_float.Span.of_min @@ ((initial_depth - final_depth) / param#ascent_speed)
+      Time_ns.Span.of_min @@ ((initial_depth - final_depth) / param#ascent_speed)
     in
     { tank; initial_depth; final_depth; duration; is_deco }
 
@@ -42,7 +42,7 @@ module Segment = struct
   let descent param ~tank ~initial_depth ~final_depth =
     (* Positive descent speed, m/min *)
     let duration =
-      Time_float.Span.of_min @@ ((final_depth - initial_depth) / param#descent_speed)
+      Time_ns.Span.of_min @@ ((final_depth - initial_depth) / param#descent_speed)
     in
     { tank; initial_depth; final_depth; duration; is_deco = false }
 
@@ -54,9 +54,7 @@ module Segment = struct
   let flat_deco = flat ~is_deco:true
   let flat_bottom = flat ~is_deco:false
   let is_flat { initial_depth; final_depth; _ } = initial_depth = final_depth
-
-  let minute_deco_stop ~tank ~depth =
-    flat_deco ~tank ~depth ~duration:Time_float.Span.minute
+  let minute_deco_stop ~tank ~depth = flat_deco ~tank ~depth ~duration:Time_ns.Span.minute
 end
 
 type t = Segment.t list
@@ -72,7 +70,7 @@ let final_tank profile = Segment.tank (List.last_exn profile)
 let square param ~tank ~depth ~time =
   let descent = Segment.descent param ~tank ~initial_depth:0. ~final_depth:depth in
   let bottom =
-    Segment.flat_bottom ~tank ~depth ~duration:Time_float.Span.(time - descent.duration)
+    Segment.flat_bottom ~tank ~depth ~duration:Time_ns.Span.(time - descent.duration)
   in
   [ descent; bottom ]
 
@@ -86,10 +84,8 @@ let segment_infos ~display_transitions ~must_pp_gas start_time segment =
     [
       direction;
       Fmt.to_to_string Physics.pp_depth segment.final_depth;
-      Fmt.to_to_string Physics.pp_time_span segment.duration;
-      Fmt.to_to_string
-        Physics.pp_time_span
-        Time_float.Span.(start_time + segment.duration);
+      Fmt.to_to_string Physics.pp_minutes segment.duration;
+      Fmt.to_to_string Physics.pp_minutes Time_ns.Span.(start_time + segment.duration);
       (if must_pp_gas then Fmt.to_to_string Gas.pp (Segment.gas segment) else "");
     ]
   in
@@ -112,7 +108,7 @@ let to_strings ?(display_transitions = false) profile =
         (* All segment boxes but the first one *)
         List.folding_map
           ~f:(fun (run_time, previous_gas) segment ->
-            ( (Time_float.Span.(run_time + Segment.duration segment), Segment.gas segment),
+            ( (Time_ns.Span.(run_time + Segment.duration segment), Segment.gas segment),
               segment_infos
                 ~must_pp_gas:(not Gas.(Segment.gas segment = previous_gas))
                 ~display_transitions
@@ -125,7 +121,7 @@ let to_strings ?(display_transitions = false) profile =
         segment_infos
           ~display_transitions
           ~must_pp_gas:true
-          Time_float.Span.zero
+          Time_ns.Span.zero
           initial_segment
         :: tail_box_lines
       in

@@ -10,7 +10,7 @@ module Model = struct
   [@@deriving sexp, compare, equal, fields]
 
   let cutoff x y = equal x y
-  let init () = { depth = 0.; time = Time_float.Span.zero }
+  let init () = { depth = 0.; time = Time_ns.Span.zero }
   let update_depth t depth = { t with depth }
   let update_time t time = { t with time }
 end
@@ -169,7 +169,7 @@ let view m ~inject =
   in
   let time_input =
     input "Time" (fun text ->
-        Action.Update_time (Time_float.Span.of_min @@ float_of_string text))
+        Action.Update_time (Time_ns.Span.of_min @@ float_of_string text))
   in
   let mdc_cell elt =
     Node.div ~attrs:[ Attr.class_ "mdc-layout-grid__cell--span-2" ] [ elt ]

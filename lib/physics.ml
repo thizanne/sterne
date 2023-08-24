@@ -26,11 +26,7 @@ module Quantity = struct
   type depth = quantity [@@deriving sexp, compare, equal]
   type pressure = quantity [@@deriving sexp, compare, equal]
   type tension = pressure [@@deriving sexp, compare, equal]
-  type time_span = Time_float.Span.t [@@deriving sexp]
-
-  let compare_time_span = Time_float.Span.robustly_compare
-  let equal_time_span = Time_float.Span.( =. )
-
+  type time_span = Time_ns.Span.t [@@deriving sexp, compare, equal]
   type volume = quantity [@@deriving sexp, compare, equal]
   type normal_volume = quantity [@@deriving sexp, compare, equal]
   type dimensionless = quantity [@@deriving sexp, compare, equal]
@@ -78,13 +74,12 @@ let volume_of_gas ~normal_volume ~pressure = normal_volume / pressure
 
 (* Pretty-printers *)
 
-let pp_depth fmt depth = Fmt.pf fmt "%g m" depth
+let pp_depth ppf depth = Fmt.pf ppf "%g m" depth
 
-let pp_time_span ppf time_span =
-  Fmt.string ppf
-  @@
-  if Time_float.Span.(time_span <. minute) then
-    Time_float.Span.to_string_hum time_span ~decimals:0 ~unit_of_time:Unit_of_time.Second
+let pp_minutes ppf time_span =
+  let open Int.O in
+  let min = Float.iround_nearest_exn @@ Time_ns.Span.to_min time_span in
+  if min > 0 then Fmt.pf ppf "%d min" min
   else
-    Time_float.Span.to_string_hum time_span ~decimals:0 ~unit_of_time:Unit_of_time.Minute
-    ^ "in" (* 3min rather than 3m *)
+    let sec = Float.iround_nearest_exn @@ Time_ns.Span.to_sec time_span in
+    Fmt.pf ppf "%d s" sec

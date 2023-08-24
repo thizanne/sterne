@@ -46,7 +46,7 @@ let time =
   let doc = "Dive time." in
   Arg.(required & pos 1 (some float) None & info [] ~docv:"TIME" ~doc)
 
-let time = Term.(const Time_float.Span.of_min $ time)
+let time = Term.(const Time_ns.Span.of_min $ time)
 
 let pf_tank_result gas_supply formatter tank =
   let remaining_pressure = Gas_supply.remaining_pressure tank gas_supply in

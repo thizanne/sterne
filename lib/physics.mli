@@ -40,7 +40,10 @@ module Quantity : sig
   (** Expressed in bar. *)
 
   type tension = pressure [@@deriving sexp, compare, equal]
-  type time_span = Time_float.Span.t [@@deriving sexp, compare, equal]
+  (** Expressed in bar. *)
+
+  type time_span = Time_ns.Span.t [@@deriving sexp, compare, equal]
+  (** Unless specified, negative time spans lead to undefined behaviours. *)
 
   type volume = quantity [@@deriving sexp, compare, equal]
   (** Expressed in cubic meters. *)
@@ -105,7 +108,7 @@ val volume_of_gas : normal_volume:normal_volume -> pressure:pressure -> volume
     compressed under [pressure].
 *)
 
-val pp_time_span : Format.formatter -> time_span -> unit
-(** Pretty prints a time span. Round to the second for spans lower
-    than a minute, to the minute otherwise. Minutes are printed as
-    "min" and not "m". *)
+val pp_minutes : Format.formatter -> time_span -> unit
+(** Pretty prints a time span assumed to be in the minutes order of
+    magnitude. Round to the second for spans lower than a minute, to
+    the minute otherwise. Minutes are printed as "min" and not "m". *)
