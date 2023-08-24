@@ -1,3 +1,6 @@
-(test
+(library
  (name togo)
- (libraries core sterne))
+ (inline_tests)
+ (libraries core sterne)
+ (preprocess
+  (pps ppx_inline_test ppx_expect)))

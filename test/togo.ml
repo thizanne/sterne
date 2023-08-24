@@ -16,4 +16,19 @@ let togo_profile =
 
 let deco = Buhlmann.deco_procedure param (0.3, 0.8) tanks togo_profile
 let full = Profile.append togo_profile deco
-let () = Profile.pp Fmt.stdout full
+
+let%expect_test "togo" =
+  Profile.pp Fmt.stdout full;
+  [%expect
+    {|
+       [1mDepth[0m  [1mStop[0m    [1mRuntime[0m  [1mGas[0m
+    ↘  55 m   3 min   3 min    20/30
+    -  55 m   22 min  25 min
+    -  24 m   2 min   30 min
+    -  21 m   1 min   31 min   50 %
+    -  18 m   1 min   33 min
+    -  15 m   2 min   35 min
+    -  12 m   2 min   37 min
+    -  9 m    5 min   43 min
+    -  6 m    6 min   49 min   O2
+    -  3 m    10 min  59 min |}]
