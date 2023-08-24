@@ -45,8 +45,13 @@ let round_fraction_percent_down fraction =
 
 let litre x = x / 1000.
 let to_litre x = x * 1000.
-let atmospheric_pressure = 1.013
-let water_density = 1.03
+
+(* TODO: changing either atm to a more correct value or water density to seawater will
+   make the ambient pressure at 6 m slightly above 1.6 bars, therefore preventing O2
+   breathing. We probably want to add a special case for 6m-oxygen breathability to solve
+   this.*)
+let atmospheric_pressure = 1.0
+let water_density = 1.0
 
 let standard_gravity =
   (* https://en.wikipedia.org/wiki/Standard_gravity *)
