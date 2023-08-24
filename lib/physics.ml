@@ -75,6 +75,10 @@ let volume_of_gas ~normal_volume ~pressure = normal_volume / pressure
 (* Pretty-printers *)
 
 let pp_depth ppf depth = Fmt.pf ppf "%g m" depth
+let pp_round_percent ppf percentage = Fmt.pf ppf "%.0f %%" percentage
+
+let pp_fraction_as_round_percent ppf fraction =
+  Fmt.using fraction_to_percent pp_round_percent ppf fraction
 
 let pp_minutes ppf time_span =
   let open Int.O in

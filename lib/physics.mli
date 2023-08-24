@@ -108,7 +108,14 @@ val volume_of_gas : normal_volume:normal_volume -> pressure:pressure -> volume
     compressed under [pressure].
 *)
 
-val pp_minutes : Format.formatter -> time_span -> unit
+val pp_minutes : time_span Fmt.t
 (** Pretty prints a time span assumed to be in the minutes order of
     magnitude. Round to the second for spans lower than a minute, to
     the minute otherwise. Minutes are printed as "min" and not "m". *)
+
+val pp_round_percent : percentage Fmt.t
+(** Round the percent to an integer and prints it. Rounding decision
+    on [x.5 %] is unspecified. *)
+
+val pp_fraction_as_round_percent : fraction Fmt.t
+(** Prints a fraction as a round percentage. See {!pp_round_percent}. *)
