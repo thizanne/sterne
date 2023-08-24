@@ -4,7 +4,8 @@ let%expect_test "pp_fraction_as_round_percent" =
   List.iter
     ~f:(fun x -> Fmt.pr "%a@\n" pp_fraction_as_percent x)
     [ 0.; 0.05; 0.1; 0.12345; 0.55; 0.1664; 0.99; 1.; 1.234 ];
-  [%expect {|
+  [%expect
+    {|
     0 %
     5 %
     10 %

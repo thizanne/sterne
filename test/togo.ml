@@ -21,7 +21,7 @@ let%expect_test "togo" =
   Profile.pp Fmt.stdout full;
   [%expect
     {|
-       [1mDepth[0m  [1mStop[0m    [1mRuntime[0m  [1mGas[0m
+       Depth  Stop    Runtime  Gas
     ↘  55 m   3 min   3 min    20/30
     -  55 m   22 min  25 min
     -  24 m   2 min   30 min
