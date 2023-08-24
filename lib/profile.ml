@@ -17,9 +17,7 @@ module Segment = struct
   let is_bottom x = not (is_deco x)
 
   let is_deco_transition segment =
-    is_deco segment
-    && segment.final_depth <> 0.
-    && segment.initial_depth > segment.final_depth
+    is_deco segment && segment.initial_depth > segment.final_depth
 
   let is_deco_stop segment =
     is_deco segment && segment.final_depth = segment.initial_depth
