@@ -113,9 +113,12 @@ val pp_minutes : time_span Fmt.t
     magnitude. Round to the second for spans lower than a minute, to
     the minute otherwise. Minutes are printed as "min" and not "m". *)
 
+val pp_percent : percentage Fmt.t
+(** Uses up to 2 decimal digits. *)
+
 val pp_round_percent : percentage Fmt.t
 (** Round the percent to an integer and prints it. Rounding decision
     on [x.5 %] is unspecified. *)
 
-val pp_fraction_as_round_percent : fraction Fmt.t
-(** Prints a fraction as a round percentage. See {!pp_round_percent}. *)
+val pp_fraction_as_percent : fraction Fmt.t
+(** Prints a fraction as a percentage. See {!pp_percent}. *)

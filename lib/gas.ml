@@ -56,7 +56,7 @@ let pp ppf gas =
   let open Fmt in
   if is_oxy gas then string ppf "O2"
   else if is_air gas then string ppf "Air"
-  else if is_nitrox gas then Physics.pp_fraction_as_round_percent ppf gas.o2
+  else if is_nitrox gas then Physics.pp_fraction_as_percent ppf gas.o2
   else
     pf
       ppf
