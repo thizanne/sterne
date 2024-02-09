@@ -1,5 +1,6 @@
 module Id = Unique_id.Int63 ()
 
+(* TODO: what if we don't have volume information? *)
 module T = struct
   type t = {
     gas : Gas.t;

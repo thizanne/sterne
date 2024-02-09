@@ -1,132 +1,108 @@
 open Physics.O
 open Physics.Quantity
 
-module Segment = struct
+module Point = struct
   type t = {
-    initial_depth : depth;
-    final_depth : depth;
-    duration : time_span;
+    depth : depth;
+    time : time_span;
     tank : Tank.t;
-    is_deco : bool;
   }
   [@@deriving fields]
 
-  let mean_depth { initial_depth; final_depth; _ } = (initial_depth + final_depth) / 2.
-  let gas { tank; _ } = Tank.gas tank
-  let is_deco { is_deco; _ } = is_deco
-  let is_bottom x = not (is_deco x)
-
-  let is_deco_transition segment =
-    is_deco segment && segment.initial_depth > segment.final_depth
-
-  let is_deco_stop segment =
-    is_deco segment && segment.final_depth = segment.initial_depth
-
-  let ascent param ~is_deco ~tank ~initial_depth ~final_depth =
-    (* Positive ascent speed, m/min *)
-    let duration =
-      Time_ns.Span.of_min @@ ((initial_depth - final_depth) / param#ascent_speed)
-    in
-    { tank; initial_depth; final_depth; duration; is_deco }
-
-  let ascent_deco param ~tank ~initial_depth ~final_depth =
-    ascent param ~is_deco:true ~tank ~initial_depth ~final_depth
-
-  let ascent_bottom param ~tank ~initial_depth ~final_depth =
-    ascent param ~is_deco:false ~tank ~initial_depth ~final_depth
-
-  let is_ascending { initial_depth; final_depth; _ } = initial_depth > final_depth
-
-  let descent param ~tank ~initial_depth ~final_depth =
-    (* Positive descent speed, m/min *)
-    let duration =
-      Time_ns.Span.of_min @@ ((final_depth - initial_depth) / param#descent_speed)
-    in
-    { tank; initial_depth; final_depth; duration; is_deco = false }
-
-  let is_descending { initial_depth; final_depth; _ } = initial_depth < final_depth
-
-  let flat ~tank ~is_deco ~depth ~duration =
-    { tank; initial_depth = depth; final_depth = depth; duration; is_deco }
-
-  let flat_deco = flat ~is_deco:true
-  let flat_bottom = flat ~is_deco:false
-  let is_flat { initial_depth; final_depth; _ } = initial_depth = final_depth
-  let minute_deco_stop ~tank ~depth = flat_deco ~tank ~depth ~duration:Time_ns.Span.minute
+  let zero ~tank = { depth = 0.; time = Time_ns.Span.zero; tank }
+  let create = Fields.create
+  let gas point = Tank.gas (tank point)
 end
 
-type t = Segment.t list
+type point = Point.t
+type t = point list
 
-let one_segment segment = [ segment ]
-let of_segment_list li = li
-let add_segment profile segment = profile @ [ segment ]
 let append x y = x @ y
-let fold ~f ~init profile = List.fold_left ~f ~init profile
-let final_depth profile = Segment.final_depth (List.last_exn profile)
-let final_tank profile = Segment.tank (List.last_exn profile)
 
-let square param ~tank ~depth ~time =
-  let descent = Segment.descent param ~tank ~initial_depth:0. ~final_depth:depth in
-  let bottom =
-    Segment.flat_bottom ~tank ~depth ~duration:Time_ns.Span.(time - descent.duration)
+let fold_segments ~f ~init profile =
+  let _final_depth, result =
+    List.fold_left
+      ~f:(fun (initial_depth, acc) { Point.depth; time; tank } ->
+        let res = f ~initial_depth ~final_depth:depth ~time ~tank acc in
+        (depth, res))
+      ~init:(0., init)
+      profile
   in
-  [ descent; bottom ]
+  result
 
-let segment_infos ~display_transitions ~must_pp_gas start_time segment =
+let fold_points ~f ~init profile = List.fold_left profile ~f ~init
+let final_depth profile = Point.depth (List.last_exn profile)
+let final_tank profile = Point.tank (List.last_exn profile)
+
+let runtime profile =
+  fold_points
+    profile
+    ~f:(fun acc { Point.time; _ } -> Time_ns.Span.(acc + time))
+    ~init:Time_ns.Span.zero
+
+let zero ~tank = [ Point.zero ~tank ]
+
+let descend param profile ~depth ~tank =
+  (* Positive descent speed, m/min *)
+  let current_depth = final_depth profile in
+  let time = Time_ns.Span.of_min ((depth - current_depth) / param#descent_speed) in
+  profile @ [ Point.create ~depth ~time ~tank ]
+
+let ascend param profile ~depth ~tank =
+  (* Positive ascent speed, m/min *)
+  let current_depth = final_depth profile in
+  let time = Time_ns.Span.of_min ((current_depth - depth) / param#ascent_speed) in
+  profile @ [ Point.create ~depth ~time ~tank ]
+
+let stay_for profile ~time ~tank =
+  let depth = final_depth profile in
+  profile @ [ Point.create ~depth ~time ~tank ]
+
+let stay_until profile ~runtime:final_runtime ~tank =
+  let depth = final_depth profile in
+  let current_runtime = runtime profile in
+  let time = Time_ns.Span.(final_runtime - current_runtime) in
+  if Time_ns.Span.is_negative time then failwith "Negative time span"
+  else profile @ [ Point.create ~depth ~time ~tank ]
+
+let square param ~tank ~depth ~runtime =
+  zero ~tank |> descend param ~depth ~tank |> stay_until ~runtime ~tank
+
+let point_infos
+    (previous_depth, previous_runtime, previous_gas)
+    ~display_short
+    { Point.depth; time; tank } =
   let direction =
-    if Segment.is_ascending segment then "↗"
-    else if Segment.is_descending segment then "↘"
-    else "-"
+    if depth < previous_depth then "↗" else if depth > previous_depth then "↘" else "-"
+  in
+  let gas = Tank.gas tank in
+  let gas_is_new =
+    match previous_gas with
+    | None -> true
+    | Some previous_gas -> Gas.(gas <> previous_gas)
   in
   let box =
     [
       direction;
-      Fmt.to_to_string Physics.pp_depth segment.final_depth;
-      Fmt.to_to_string Physics.pp_minutes segment.duration;
-      Fmt.to_to_string Physics.pp_minutes Time_ns.Span.(start_time + segment.duration);
-      (if must_pp_gas then Fmt.to_to_string Gas.pp (Segment.gas segment) else "");
+      Fmt.to_to_string Physics.pp_depth depth;
+      Fmt.to_to_string Physics.pp_minutes time;
+      Fmt.to_to_string Physics.pp_minutes Time_ns.Span.(previous_runtime + time);
+      (if gas_is_new then Fmt.to_to_string Gas.pp gas else "");
     ]
   in
-  if
-    (not display_transitions) && (not must_pp_gas) && Segment.is_deco_transition segment
-    (* TODO: if we allow gas changing during the ascent and not only at a stop, then it
-       may happen within a transition. In that case we should print both this transition
-       segment and the previous one. Currently we assume it does not happen. However, deco
-       transition where we change gas may still happen if the first transition happens to
-       be 3m and the higher ppo2 on deco allows gas changing. Thus we must still test
-       must_pp_gas.*)
-  then None
-  else Some box
+  if display_short || gas_is_new || Time_ns.Span.(time > minute) then Some box else None
 
-let to_strings ?(display_transitions = false) profile =
-  match profile with
-  | [] -> assert false
-  | initial_segment :: segments ->
-      let tail_box_lines =
-        (* All segment boxes but the first one *)
-        List.folding_map
-          ~f:(fun (run_time, previous_gas) segment ->
-            ( (Time_ns.Span.(run_time + Segment.duration segment), Segment.gas segment),
-              segment_infos
-                ~must_pp_gas:(not Gas.(Segment.gas segment = previous_gas))
-                ~display_transitions
-                run_time
-                segment ))
-          ~init:(Segment.duration initial_segment, Segment.gas initial_segment)
-          segments
-      in
-      let box =
-        segment_infos
-          ~display_transitions
-          ~must_pp_gas:true
-          Time_ns.Span.zero
-          initial_segment
-        :: tail_box_lines
-      in
-      List.filter_opt box
+let to_strings ?(display_short = false) (profile : t) =
+  List.filter_opt
+  @@ List.folding_map
+       ~f:(fun (depth, runtime, gas) point ->
+         ( (point.depth, Time_ns.Span.(runtime + point.time), Some (Point.gas point)),
+           point_infos ~display_short (depth, runtime, gas) point ))
+       ~init:(0., Time_ns.Span.zero, None)
+       profile
 
-let pp ?(display_transitions = false) ppf profile =
-  let infos = to_strings ~display_transitions profile in
+let pp ?(display_short = false) ppf profile =
+  let infos = to_strings ~display_short profile in
   let box_l = List.map ~f:(List.map ~f:PrintBox.text) infos in
   let first_line_style =
     match Fmt.style_renderer ppf with
