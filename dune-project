@@ -21,6 +21,11 @@
   uucp
   uutf
   ppx_jane
+  (odig :with-dev-setup)
+  (utop :with-dev-setup)
+  (merlin :with-dev-setup)
+  (ocp-indent :with-dev-setup)
+  (ocamlformat :with-dev-setup)
   ))
 
 (package
@@ -34,4 +39,9 @@
   gen_js_api
   incr_dom
   js_of_ocaml
+  (odig :with-dev-setup)
+  (utop :with-dev-setup)
+  (merlin :with-dev-setup)
+  (ocp-indent :with-dev-setup)
+  (ocamlformat :with-dev-setup)
   ))
