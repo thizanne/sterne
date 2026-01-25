@@ -8,5 +8,5 @@ val deco_procedure :
   Tank.t list ->
   Profile.t ->
   Profile.t
-(** [deco_procedure param (gf_low, gf_high) bottom_profile] computes the
-    decompression profile for a dive. *)
+(** [deco_procedure param (gf_low, gf_high) bottom_profile] computes the decompression
+    profile for a dive. *)

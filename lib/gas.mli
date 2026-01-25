@@ -1,6 +1,6 @@
 open Physics.Quantity
 
-(** {1 Breathing gases } *)
+(** {1 Breathing gases} *)
 
 type t [@@deriving sexp]
 (** Type of breathing gases. *)
@@ -18,7 +18,7 @@ val ( <> ) : t -> t -> bool
 val fraction : element -> t -> fraction
 (** Returns the fraction of the element in the gas. *)
 
-(** {2 Create gases and basic functions } *)
+(** {2 Create gases and basic functions} *)
 
 val air : t
 val oxy : t
@@ -40,7 +40,7 @@ val is_oxy : t -> bool
 val is_nitrox : t -> bool
 val partial_pressure : element -> t -> depth -> pressure
 
-(** {3 Diving related functions } *)
+(** {3 Diving related functions} *)
 
 val mod_ : ?ppo2_max:pressure -> t -> depth
 
@@ -48,12 +48,11 @@ val end_ : t -> depth -> depth
 (** Conservative: assumes that oxygen is as narcotic as nitrogen. *)
 
 val ead : t -> depth -> depth
-(** Equivalent air depth for saturation. Fails is gas is not
-    nitrox. *)
+(** Equivalent air depth for saturation. Fails is gas is not nitrox. *)
 
 val is_breathable : ?ppo2_max:pressure -> depth:depth -> t -> bool
 
-(** {2 Pretty printing and parsing } *)
+(** {2 Pretty printing and parsing} *)
 
 val pp : Format.formatter -> t -> unit
 (** Prints as [Air], [Oxy], [Nx 32] or [Tx 18/45]. *)

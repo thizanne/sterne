@@ -26,7 +26,7 @@ type saturation = {
 (* A saturation state is a saturation list for each compartment *)
 
 let alveolar_pressure element mix ambient_pressure =
-  let water_vapour_pressure = 0.0627 (* 47 mmHg *) in
+  let water_vapour_pressure = (* 47 mmHg *) 0.0627 in
   Gas.fraction element mix * (ambient_pressure - water_vapour_pressure)
 
 let compartments =

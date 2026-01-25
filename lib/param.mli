@@ -1,6 +1,6 @@
 open Physics.Quantity
 
-(** {1 General parameters for diving computations } *)
+(** {1 General parameters for diving computations} *)
 
 type t =
   < ascent_speed : quantity
