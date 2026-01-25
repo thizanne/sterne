@@ -5,7 +5,8 @@
 (generate_opam_files true)
 
 (source (github thizanne/sterne))
-(authors "Thibault Suzanne")
+(authors "Thibault Suzanne <thi.suzanne@gmail.com>")
+(maintainers "Thibault Suzanne <thi.suzanne@gmail.com>")
 
 (package
  (name sterne)
