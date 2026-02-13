@@ -66,19 +66,18 @@ let pp ppf gas =
 
 let parse input =
   (* TODO: be case insensitive, and allow mix prefix (Nx, Tx). *)
-  let routes =
-    Tyre.
-      [
-        str "air" --> const air;
-        str "oxy" --> const oxy;
-        pos_int --> nx;
-        (pos_int <* char '/' <&> pos_int) --> tx';
-      ]
-  in
-  let routes =
+  let ( ---> ) re handler =
     (* Regexps must match the whole string: "air32" isn't a gas, and this also ensures
        that "18/40" is not parsed as nitrox 18 *)
-    List.map ~f:Tyre.(fun (Route (re, fn)) -> Route (whole_string re, fn)) routes
+    Tyre.(whole_string re --> handler)
+  in
+  let routes =
+    [
+      Tyre.str "air" ---> const air;
+      Tyre.str "oxy" ---> const oxy;
+      Tyre.pos_int ---> nx;
+      Tyre.(pos_int <* char '/' <&> pos_int) ---> tx';
+    ]
   in
   match Tyre.(exec @@ route routes) input with Ok gas -> Some gas | Error _ -> None
 
