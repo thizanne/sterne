@@ -1,9 +1,9 @@
 open Physics.O
 
 type t = {
-  o2 : float;
-  he : float;
-  n2 : float;
+  o2 : Physics.fraction;
+  he : Physics.fraction;
+  n2 : Physics.fraction;
 }
 [@@deriving sexp, equal]
 
