@@ -20,16 +20,16 @@ module Quantity = struct
   let compare_quantity = robustly_compare
   let equal_quantity = equal
 
+  type depth = quantity [@@deriving sexp, compare, equal]
+  type dimensionless = quantity [@@deriving sexp, compare, equal]
   type fraction = quantity [@@deriving sexp, compare, equal]
+  type normal_volume = quantity [@@deriving sexp, compare, equal]
   type percentage = quantity [@@deriving sexp, compare, equal]
   type percentage_int = int [@@deriving sexp, compare, equal]
-  type depth = quantity [@@deriving sexp, compare, equal]
   type pressure = quantity [@@deriving sexp, compare, equal]
   type tension = pressure [@@deriving sexp, compare, equal]
   type time_span = Time_ns.Span.t [@@deriving sexp, compare, equal]
   type volume = quantity [@@deriving sexp, compare, equal]
-  type normal_volume = quantity [@@deriving sexp, compare, equal]
-  type dimensionless = quantity [@@deriving sexp, compare, equal]
 end
 
 include Quantity
