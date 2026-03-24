@@ -41,6 +41,9 @@ module Quantity : sig
   type time_span = Time_ns.Span.t [@@deriving sexp, compare, equal]
   (** Unless specified, negative time spans lead to undefined behaviours. *)
 
+  type speed = quantity [@@deriving sexp, compare, equal]
+  (** Expressed in m/s. *)
+
   type volume = quantity [@@deriving sexp, compare, equal]
   (** Expressed in cubic meters. *)
 

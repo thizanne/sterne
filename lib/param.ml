@@ -1,6 +1,6 @@
 type t =
-  < ascent_speed : Physics.Quantity.quantity
-  ; descent_speed : Physics.Quantity.quantity
+  < ascent_speed : Physics.Quantity.speed
+  ; descent_speed : Physics.Quantity.speed
   ; ppo2_max_deco : Physics.Quantity.pressure
   ; ppo2_max_bottom : Physics.Quantity.pressure
   ; sac : Gas_consumption.sac >

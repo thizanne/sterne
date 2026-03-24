@@ -27,6 +27,7 @@ module Quantity = struct
   type percentage = quantity [@@deriving sexp, compare, equal]
   type percentage_int = int [@@deriving sexp, compare, equal]
   type pressure = quantity [@@deriving sexp, compare, equal]
+  type speed = quantity [@@deriving sexp, compare, equal]
   type tension = pressure [@@deriving sexp, compare, equal]
   type time_span = Time_ns.Span.t [@@deriving sexp, compare, equal]
   type volume = quantity [@@deriving sexp, compare, equal]
