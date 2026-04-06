@@ -62,5 +62,7 @@ val parse : string -> t option
 
 module Best : sig
   val nitrox : ppo2:pressure -> depth:depth -> unit -> t
-  val trimix : ppo2:pressure -> ?end_:depth -> depth:depth -> unit -> t
+
+  val trimix :
+    ppo2:pressure -> ?end_:depth -> ?o2_narcotic:unit -> depth:depth -> unit -> t
 end
