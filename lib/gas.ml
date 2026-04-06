@@ -82,14 +82,12 @@ let parse input =
   match Tyre.(exec @@ route routes) input with Ok gas -> Some gas | Error _ -> None
 
 module Best = struct
-  let nitrox param ~depth () =
-    let ppo2 = param#ppo2_max_bottom in
+  let nitrox ~ppo2 ~depth () =
     let p_amb = Physics.depth_to_pressure depth in
     let o2 = Physics.round_fraction_percent_down (ppo2 / p_amb) in
     nitrox' ~o2
 
-  let trimix param ?(end_ = 30.) ~depth () =
-    let ppo2 = param#ppo2_max_bottom in
+  let trimix ~ppo2 ?(end_ = 30.) ~depth () =
     let p_amb = Physics.depth_to_pressure depth in
     let p_end = Physics.depth_to_pressure end_ in
     let o2 = Physics.round_fraction_percent_down (ppo2 / p_amb) in
