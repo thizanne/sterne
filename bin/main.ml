@@ -42,11 +42,11 @@ let depth =
   let doc = "Depth." in
   Arg.(required & pos 0 (some float) None & info [] ~docv:"DEPTH" ~doc)
 
-let time =
-  let doc = "Dive time." in
-  Arg.(required & pos 1 (some float) None & info [] ~docv:"TIME" ~doc)
+let runtime =
+  let doc = "Dive runtime." in
+  Arg.(required & pos 1 (some float) None & info [] ~docv:"RUNTIME" ~doc)
 
-let time = Term.(const Time_ns.Span.of_min $ time)
+let runtime = Term.(const Time_ns.Span.of_min $ runtime)
 
 let pf_tank_result gas_supply formatter tank =
   let remaining_pressure = Gas_supply.remaining_pressure tank gas_supply in
@@ -61,16 +61,17 @@ let pf_tank_result gas_supply formatter tank =
     Gas.pp
     (Tank.gas tank)
 
-let main tanks gf display_transitions depth time =
+let main tanks gf display_short depth runtime =
   let param = Param.default in
-  let profile = Profile.square param ~tank:(List.hd_exn tanks) ~depth ~time in
-  let deco = Buhlmann.deco_procedure param gf tanks profile in
-  let full_profile = Profile.append profile deco in
-  let gas_supply = Gas_supply.breathe_on_profile' param full_profile in
+  let bottom_profile =
+    Profile.square_exn param ~tank:(List.hd_exn tanks) ~depth ~runtime
+  in
+  let complete_profile = Buhlmann.plan_deco param gf tanks bottom_profile in
+  let gas_supply = Gas_supply.breathe_on_profile' param complete_profile in
   Fmt.set_style_renderer Fmt.stdout `Ansi_tty;
   let open Fmt in
   vbox
-    (const (box (Profile.pp ~display_transitions)) full_profile
+    (const (box (Profile.pp ~display_short)) complete_profile
     ++ cut
     ++ cut
     ++ styled `Bold (const Fmt.string "Remaining gas")
@@ -84,4 +85,4 @@ let main tanks gf display_transitions depth time =
 let () =
   exit
   @@ Cmd.eval
-  @@ Cmd.v info Term.(const main $ tanks $ gf $ display_transitions $ depth $ time)
+  @@ Cmd.v info Term.(const main $ tanks $ gf $ display_transitions $ depth $ runtime)

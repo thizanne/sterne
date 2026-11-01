@@ -94,8 +94,8 @@ let segment_element_loading element (segment : Profile.Segment.t) p0 { half_life
   (* Schreiner equation *)
   (* p0 = initial inert gas pressure in the compartment *)
   let module S = Profile.Segment in
-  let initial_pressure = Physics.depth_to_pressure @@ S.initial_depth segment in
-  let final_pressure = Physics.depth_to_pressure @@ S.final_depth segment in
+  let initial_pressure = Physics.depth_to_pressure @@ S.start_depth segment in
+  let final_pressure = Physics.depth_to_pressure @@ S.end_depth segment in
   let t = Time_ns.Span.to_min @@ S.duration segment in
   let gas = S.gas segment in
   let half_life = Time_ns.Span.to_min half_life in
@@ -115,7 +115,7 @@ let segment_saturation saturation segment =
   List.map2_exn ~f:(segment_compartment_loading segment) saturation compartments
 
 let profile_saturation profile =
-  Profile.fold
+  Profile.fold_segments
     ~f:segment_saturation
     ~init:(full_saturation Gas.air Physics.atmospheric_pressure)
     profile
@@ -161,12 +161,12 @@ let is_admissible_depth gf depth saturation =
     compartments
     saturation
 
-let first_stop param (gf_low, gf_high) tank depth saturation =
-  (* Given a depth and a saturation, returns the depth of the first required deco stop,
-     along with the saturation when reaching it and the corresponding gradient factor
-     function. This stop is defined as the shallower 3m-multiple that can be reached with
-     an acceptable saturation. Ascent to the stop is taken into account to compute this
-     saturation. *)
+let first_stop param (gf_low, gf_high) profile saturation =
+  (* Given a (bottom) profile and a saturation, returns the depth of the first required
+     deco stop, along with the saturation when reaching it and the corresponding gradient
+     factor function. This stop is defined as the shallower 3m-multiple that can be
+     reached with an acceptable saturation. Ascent to the stop is taken into account to
+     compute this saturation. *)
   let rec aux low_depth_found gf depth saturation =
     (* If the low depth for gf hasn't been determined yet, then we only consider gf_low
        for acceptable saturation. Once we reach the M-value with this gf_low, then we can
@@ -178,7 +178,11 @@ let first_stop param (gf_low, gf_high) tank depth saturation =
     else
       let next_3m = Physics.next_3m_depth depth in
       let ascent_segment =
-        Profile.Segment.ascent_deco param ~tank ~initial_depth:depth ~final_depth:next_3m
+        Profile.Segment.ascent
+          param
+          ~start_depth:depth
+          ~end_depth:next_3m
+          ~tank:(Profile.last_tank profile)
       in
       let next_saturation = segment_saturation saturation ascent_segment in
       if is_admissible_depth gf next_3m next_saturation then
@@ -188,64 +192,59 @@ let first_stop param (gf_low, gf_high) tank depth saturation =
         let gf = Staged.unstage @@ make_gf_fun (gf_low, gf_high) depth in
         aux true gf depth saturation
   in
-  aux false (const gf_low) depth saturation
+  aux false (const gf_low) (Profile.last_depth profile) saturation
 
-let rec stop_time gf tank stop_depth next_stop_depth saturation =
+let rec stop_time gf current_stop_depth tank saturation =
   (* Returns the time to be spent at a stop depth, given an initial saturation, along with
      the final saturation after completing this stop. This is defined as the time needed
      to make the saturation acceptable at the next stop. Note: the ascent segment to the
      next stop is not considered to compute this saturation. *)
+  let next_stop_depth = Physics.next_3m_depth current_stop_depth in
   if is_admissible_depth gf next_stop_depth saturation then (Time_ns.Span.zero, saturation)
   else
-    let minute_segment = Profile.Segment.minute_deco_stop ~tank ~depth:stop_depth in
-    let one_minute = Profile.Segment.duration minute_segment in
+    let minute_segment = Profile.Segment.minute_stop ~depth:current_stop_depth ~tank in
     let minute_saturation = segment_saturation saturation minute_segment in
     let remaining_time, saturation =
-      stop_time gf tank stop_depth next_stop_depth minute_saturation
+      stop_time gf current_stop_depth tank minute_saturation
     in
-    (Time_ns.Span.(one_minute + remaining_time), saturation)
+    (Time_ns.Span.(minute + remaining_time), saturation)
 
-let deco param (gf_low, gf_high) tanks depth bottom_tank saturation =
-  (* Returns the full deco profile from given current depth, saturation and breathing gas,
-     and available tanks, as a list of segments whose last element has 0 as a final
-     depth. *)
-  let first_stop_depth, first_stop_saturation, gf =
-    first_stop param (gf_low, gf_high) bottom_tank depth saturation
+let plan_deco param (gf_low, gf_high) tanks profile =
+  (* Complete the profile with a safe decompression procedure. *)
+  let saturation = profile_saturation profile in
+  let first_stop_depth, first_stop_initial_saturation, gf =
+    first_stop param (gf_low, gf_high) profile saturation
   in
-  let rec deco_stops stop_depth saturation =
-    if stop_depth = 0. then []
+  let profile =
+    Profile.ascend
+      param
+      profile
+      ~end_depth:first_stop_depth
+      ~tank:(Profile.last_tank profile)
+  in
+  let rec deco_stops profile saturation =
+    let stop_depth = Profile.last_depth profile in
+    if stop_depth = 0. then profile
     else
       let next_stop_depth = Physics.next_3m_depth stop_depth in
       let deco_tank = Tank.find_best_deco param ~depth:stop_depth tanks in
-      let waiting_time, end_saturation =
-        stop_time gf deco_tank stop_depth next_stop_depth saturation
+      let waiting_time, stop_final_saturation =
+        stop_time gf stop_depth deco_tank saturation
       in
-      let stop_segment =
-        Profile.Segment.flat_deco ~tank:deco_tank ~depth:stop_depth ~duration:waiting_time
+      let profile =
+        profile
+        |> Profile.stay_for ~duration:waiting_time ~tank:deco_tank
+        |> Profile.ascend param ~end_depth:next_stop_depth ~tank:deco_tank
       in
-      let ascent_segment =
-        Profile.Segment.ascent_deco
-          param
-          ~tank:deco_tank
-          ~initial_depth:stop_depth
-          ~final_depth:next_stop_depth
+      let next_stop_initial_saturation =
+        segment_saturation
+          stop_final_saturation
+          (Profile.Segment.ascent
+             param
+             ~start_depth:stop_depth
+             ~end_depth:next_stop_depth
+             ~tank:deco_tank)
       in
-      let next_stop_saturation = segment_saturation end_saturation ascent_segment in
-      stop_segment :: ascent_segment :: deco_stops next_stop_depth next_stop_saturation
+      deco_stops profile next_stop_initial_saturation
   in
-  Profile.Segment.ascent_deco
-    param
-    ~tank:bottom_tank
-    ~initial_depth:depth
-    ~final_depth:first_stop_depth
-  :: deco_stops first_stop_depth first_stop_saturation
-
-let deco_procedure param (gf_low, gf_high) tanks profile =
-  deco
-    param
-    (gf_low, gf_high)
-    tanks
-    (Profile.final_depth profile)
-    (Profile.final_tank profile)
-    (profile_saturation profile)
-  |> Profile.of_segment_list
+  deco_stops profile first_stop_initial_saturation

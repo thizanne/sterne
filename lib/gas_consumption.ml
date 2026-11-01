@@ -14,6 +14,6 @@ let breathe_at_depth sac ambient_pressure time_span =
 
 let breathe_on_segment sac segment =
   let duration = Profile.Segment.duration segment in
-  let mean_depth = Profile.Segment.mean_depth segment in
+  let mean_depth = Profile.Segment.average_depth segment in
   let mean_pressure = Physics.depth_to_pressure mean_depth in
   breathe_at_depth sac mean_pressure duration

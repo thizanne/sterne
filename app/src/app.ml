@@ -5,14 +5,14 @@ open Js_of_ocaml
 module Model = struct
   type t = {
     depth : Physics.Quantity.depth;
-    time : Physics.Quantity.time_span;
+    runtime : Physics.Quantity.time_span;
   }
   [@@deriving sexp, compare, equal, fields]
 
   let cutoff x y = equal x y
-  let init () = { depth = 0.; time = Time_ns.Span.zero }
+  let init () = { depth = 0.; runtime = Time_ns.Span.zero }
   let update_depth t depth = { t with depth }
-  let update_time t time = { t with time }
+  let update_time t runtime = { t with runtime }
 end
 
 module Action = struct
@@ -175,11 +175,10 @@ let view m ~inject =
     Node.div ~attrs:[ Attr.class_ "mdc-layout-grid__cell--span-2" ] [ elt ]
   in
   let%map full_profile =
-    m >>| fun { Model.depth; time } ->
-    let profile = Profile.square Param.default ~tank:bottom_tank ~depth ~time in
+    m >>| fun { Model.depth; runtime } ->
+    let profile = Profile.square_exn Param.default ~tank:bottom_tank ~depth ~runtime in
     let gf = (0.8, 0.8) in
-    let deco = Buhlmann.deco_procedure Param.default gf tanks profile in
-    Profile.append profile deco
+    Buhlmann.plan_deco Param.default gf tanks profile
   in
   let runtime_node = runtime_node full_profile in
   let gas_supply =

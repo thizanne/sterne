@@ -32,7 +32,7 @@ let breathe_on_segment param segment supply =
     tank
 
 let breathe_on_profile param profile supply =
-  Profile.fold
+  Profile.fold_segments
     ~f:(fun accum seg -> breathe_on_segment param seg accum)
     ~init:supply
     profile
@@ -50,7 +50,7 @@ let breathe_on_segment' param segment supply =
     tank
 
 let breathe_on_profile' param profile =
-  Profile.fold
+  Profile.fold_segments
     ~f:(fun accum seg -> breathe_on_segment' param seg accum)
     ~init:empty
     profile
